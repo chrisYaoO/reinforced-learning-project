@@ -36,10 +36,11 @@ class LocalDistilGPT2:
 
 if __name__ == "__main__":
     # download model to local
-    # model_name = "distilgpt2"
-    # AutoTokenizer.from_pretrained(model_name).save_pretrained("../models/distilgpt2")
-    # AutoModelForCausalLM.from_pretrained(model_name).save_pretrained("../models/distilgpt2")
+    model_name = "distilgpt2"
+    AutoTokenizer.from_pretrained(model_name).save_pretrained("../models/distilgpt2")
+    AutoModelForCausalLM.from_pretrained(model_name).save_pretrained("../models/distilgpt2")
 
+    # test
     gpt2 = LocalDistilGPT2("../models/distilgpt2")
     prompt = "Q: What is reinforcement learning?\nA:"
     gpt_response = gpt2.generate(prompt)

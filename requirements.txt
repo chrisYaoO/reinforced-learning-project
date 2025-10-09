@@ -2,3 +2,5 @@ torch==2.8.0+cu126
 numpy==2.3.3
 datasets==4.1.1
 transformers==4.57.0
+tensorflow==2.20.0
+tensorboard==2.20.0
