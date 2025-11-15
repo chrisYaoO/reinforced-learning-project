@@ -135,14 +135,14 @@ class SFT:
             total += len(trigrams)
             dup += (len(trigrams) - len(set(trigrams)))
         return (dup / total) if total > 0 else 0.0
-
-    def evaluate_diversity(self, generations: list[str]) -> dict[str, float]:
+    @staticmethod
+    def evaluate_diversity(generations: list[str]) -> dict[str, float]:
         if len(generations) == 0:
             return {"avg_len": 0.0, "distinct_1": 0.0, "distinct_2": 0.0, "tri_repeat": 0.0}
         avg_len = sum(len(g.split()) for g in generations) / len(generations)
-        d1 = self._distinct_n_ratio(generations, n=1)
-        d2 = self._distinct_n_ratio(generations, n=2)
-        tri_rep = self._trigram_repeat_rate(generations)
+        d1 = SFT._distinct_n_ratio(generations, n=1)
+        d2 = SFT._distinct_n_ratio(generations, n=2)
+        tri_rep = SFT._trigram_repeat_rate(generations)
         return {"avg_len": avg_len, "distinct_1": d1, "distinct_2": d2, "tri_repeat": tri_rep}
 
     #   Evaluation: Reward
@@ -256,11 +256,11 @@ if __name__ == "__main__":
         "Write a negative one-sentence review:"
     ]
 
-    # report = sft.evaluate_all(
-    #     prompts=prompts,
-    #     reward_fn=toy_reward_fn,
-    #     n_per_prompt=10,
-    #     max_new_tokens=40,
-    #     temperature=0.7,
-    #     top_p=0.9
-    # )
+    report = sft.evaluate_all(
+        prompts=prompts,
+        reward_fn=toy_reward_fn,
+        n_per_prompt=10,
+        max_new_tokens=40,
+        temperature=0.7,
+        top_p=0.9
+    )
