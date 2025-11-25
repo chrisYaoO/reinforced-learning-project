@@ -4,8 +4,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from collections import Counter
 import numpy as np
 
-SENTIMENT_MODEL_PATH = "train_sentiment_classifier.py"  # Path to your fine-tuned sentiment classifier
-Tokenizer_MODEL_PATH = "../models/sft_model"
+SENTIMENT_MODEL_PATH = "../models/sentiment_classifier_yelp"  # Path to your fine-tuned sentiment classifier
+Tokenizer_MODEL_PATH = "../models/sentiment_classifier_yelp"
 
 class RewardModel:
     def __init__(self,
