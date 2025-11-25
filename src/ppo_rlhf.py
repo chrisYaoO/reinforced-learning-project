@@ -158,7 +158,22 @@ class PPOTrainer:
                 r = self.generate(p)
                 responses.append(r)
 
-                rew = float(self.reward_fn(r))
+                # --- FIX ---
+                # The original line was:
+                # rew = float(self.reward_fn(r))
+                # This was wrong for two reasons:
+                # 1. self.reward_fn (which is RewardModel.compute_reward)
+                #    needs BOTH the prompt and the response.
+                # 2. It returns a TUPLE of 4 values, not a single float.
+                
+                # Call the reward function with both prompt and response
+                # (Your PPO trainer now correctly uses the prompt in reward calculation)
+                reward_tuple = self.reward_fn(prompt=p, response=r)
+                
+                # The first element is the final_reward
+                rew = float(reward_tuple[0])
+                # --- END FIX ---
+                
                 rewards.append(rew)
 
                 text = p + r

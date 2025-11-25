@@ -1,102 +1,169 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
-from sft import SFT, toy_reward_fn
-from rlhf_eval import evaluate_rlhf_model, evaluate_diversity
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import numpy as np
+from collections import Counter
+from reward_model import RewardModel 
 
+# --- 配置 ---
+SFT_MODEL_PATH = "../models/sft_model"
+RLHF_MODEL_PATH = "../models/rlhf_model"
+N_SAMPLES = 20 # 运行更多样本以获得更稳定的统计数据
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+PROMPTS = [
+    "Write a positive review:",
+    "Write a negative review:",
+    "The restaurant was",
+    "I will never go back because"
+]
 
-# Generate samples from a model
+# --- 辅助函数：多样性计算 ---
+# (从你的 'evaluate_sft_model' 中提取)
+def evaluate_diversity(texts):
+    """Calculates distinct-1, distinct-2, and tri-gram repetition."""
+    tokens = [t.lower().split() for t in texts]
+    
+    # Distinct-1
+    d1_total = 0
+    d1_unique = 0
+    for tk in tokens:
+        d1_total += len(tk)
+        d1_unique += len(set(tk))
+    distinct_1 = d1_unique / d1_total if d1_total > 0 else 0
 
-def generate_from_model(model, tokenizer, prompt, device="cpu", n=3):
-    tokenizer.pad_token = tokenizer.eos_token
-    results = []
+    # Distinct-2
+    d2_total = 0
+    d2_unique = 0
+    for tk in tokens:
+        bigrams = set()
+        for i in range(len(tk) - 1):
+            bigrams.add(tuple(tk[i:i+2]))
+        d2_total += len(tk) - 1
+        d2_unique += len(bigrams)
+    distinct_2 = d2_unique / d2_total if d2_total > 0 else 0
 
-    for _ in range(n):
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
-        with torch.no_grad():
-            out = model.generate(
-                **inputs,
-                max_new_tokens=40,
-                do_sample=True,
-                top_p=0.9,
-                temperature=0.7,
-                pad_token_id=tokenizer.eos_token_id
-            )
-        full = tokenizer.decode(out[0], skip_special_tokens=True)
-        results.append(full[len(prompt):].strip())
+    # Tri-gram repetition
+    tri_rep_rates = []
+    for tk in tokens:
+        if len(tk) < 3:
+            continue
+        trigrams = Counter()
+        for i in range(len(tk) - 2):
+            trigrams[tuple(tk[i:i+3])] += 1
+        
+        if not trigrams:
+            continue
+            
+        total_trigrams = sum(trigrams.values())
+        unique_trigrams = len(trigrams)
+        tri_rep_rates.append((total_trigrams - unique_trigrams) / total_trigrams)
+        
+    tri_repeat = np.mean(tri_rep_rates) if tri_rep_rates else 0
 
-    return results
+    return {
+        "distinct_1": distinct_1,
+        "distinct_2": distinct_2,
+        "tri_repeat": tri_repeat
+    }
 
-
-
-# Evaluate SFT model
-
-def evaluate_sft_model(sft_model_dir, token_dir, prompts, reward_fn, n_samples=10):
-    sft = SFT(model_name=sft_model_dir, token_dir=token_dir)
+# --- 核心评估函数 ---
+def evaluate_model(model_path: str, tokenizer: AutoTokenizer, reward_model: RewardModel, prompts: list):
+    """
+    Loads a model, generates responses for all prompts, and evaluates them
+    using the REAL reward model.
+    """
+    print(f"Loading model: {model_path}")
+    model = AutoModelForCausalLM.from_pretrained(model_path).to(DEVICE)
+    model.eval()
 
     generations = {}
     all_rewards = []
-
+    all_texts = []
+    
+    print(f"Generating {N_SAMPLES} samples for {len(prompts)} prompts...")
     for p in prompts:
-        gens = sft.generate_batch([p], n_per_prompt=n_samples)[p]
-        generations[p] = gens
-        for g in gens:
-            all_rewards.append(reward_fn(g))
+        prompt_generations = []
+        for _ in range(N_SAMPLES):
+            inputs = tokenizer(p, return_tensors="pt").to(DEVICE)
+            with torch.no_grad():
+                out = model.generate(
+                    **inputs,
+                    max_new_tokens=40,
+                    do_sample=True,
+                    top_p=0.9,
+                    temperature=0.7,
+                    pad_token_id=tokenizer.eos_token_id
+                )
+            full = tokenizer.decode(out[0], skip_special_tokens=True)
+            response = full[len(p):].strip()
+            
+            prompt_generations.append(response)
+            all_texts.append(response)
+            
+            # --- 关键修复 ---
+            # 调用真实的奖励函数，它需要 prompt 和 response
+            # 并且它返回一个元组，我们取第一个元素
+            reward_tuple = reward_model.compute_reward(prompt=p, response=response)
+            all_rewards.append(reward_tuple[0]) # [0] is the final_reward
+        
+        generations[p] = prompt_generations
 
+    # --- 计算指标 ---
     mean_reward = np.mean(all_rewards)
-    all_texts = [g for outs in generations.values() for g in outs]
-    diversity = SFT.evaluate_diversity(all_texts)
-
+    diversity_metrics = evaluate_diversity(all_texts)
+    
     return {
         "mean_reward": mean_reward,
-        "diversity": diversity,
-        "samples": {p: generations[p][:2] for p in prompts}
+        "diversity": diversity_metrics,
+        "samples": {p: generations[p][:2] for p in prompts} # Save 2 samples for qualitative review
     }
 
-
-
-# Compare SFT vs RLHF
-
+# --- 主对比逻辑 ---
 def compare_models():
-    prompts = [
-        "Write a positive review:",
-        "Write a negative review:"
-    ]
+    
+    # --- 关键修复：实例化你真正的 RewardModel ---
+    print("Initializing Real Reward Model (Judge)...")
+    # 这会加载你（Wei Wang）的分类器
+    reward_model_instance = RewardModel() 
+    print("Reward Model loaded.")
 
-    print("=== Evaluating SFT Model ===")
-    sft_report = evaluate_sft_model(
-        sft_model_dir="../models/sft_model",
-        token_dir="../data/tokenized_data",
-        prompts=prompts,
-        reward_fn=toy_reward_fn,
-        n_samples=10
+    # 我们需要一个 SFT 模型的 Tokenizer 来加载
+    # 两个模型都使用相同的 Tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(SFT_MODEL_PATH)
+    tokenizer.pad_token = tokenizer.eos_token
+
+    print("\n=== Evaluating SFT Model (Baseline) ===")
+    sft_report = evaluate_model(
+        model_path=SFT_MODEL_PATH,
+        tokenizer=tokenizer,
+        reward_model=reward_model_instance, # 使用真正的裁判
+        prompts=PROMPTS
     )
 
-    print("\n=== Evaluating RLHF Model ===")
-    rlhf_report = evaluate_rlhf_model(
-        model_path="../models/rlhf_model",
-        prompts=prompts,
-        reward_fn=toy_reward_fn,
-        n_samples=10
+    print("\n=== Evaluating RLHF Model (PPO-Tuned) ===")
+    rlhf_report = evaluate_model(
+        model_path=RLHF_MODEL_PATH,
+        tokenizer=tokenizer,
+        reward_model=reward_model_instance, # 使用同一个真正的裁判
+        prompts=PROMPTS
     )
 
-    # Print comparison table
+    # --- 打印对比表 ---
     print("\n================= MODEL COMPARISON =================")
-    print(f"{'Metric':<20}{'SFT':<20}{'RLHF':<20}")
+    print(f"{'Metric':<20}{'SFT (Baseline)':<20}{'RLHF (PPO)':<20}")
     print("-" * 60)
     print(f"{'Mean Reward':<20}{sft_report['mean_reward']:<20.3f}{rlhf_report['mean_reward']:<20.3f}")
     print(f"{'Distinct-1':<20}{sft_report['diversity']['distinct_1']:<20.3f}{rlhf_report['diversity']['distinct_1']:<20.3f}")
     print(f"{'Distinct-2':<20}{sft_report['diversity']['distinct_2']:<20.3f}{rlhf_report['diversity']['distinct_2']:<20.3f}")
     print(f"{'Tri-Repeat':<20}{sft_report['diversity']['tri_repeat']:<20.3f}{rlhf_report['diversity']['tri_repeat']:<20.3f}")
 
-    # Show qualitative samples
+    # --- 打印定性样本 ---
     print("\n================= SAMPLE OUTPUTS =================")
-    for p in prompts:
+    for p in PROMPTS:
         print(f"\nPrompt: {p}")
-        print(f"SFT Sample 1: {sft_report['samples'][p][0]}")
-        print(f"SFT Sample 2: {sft_report['samples'][p][1]}")
-
+        print("--------------------------------------------------")
+        print(f"SFT Sample 1:  {sft_report['samples'][p][0]}")
+        print(f"SFT Sample 2:  {sft_report['samples'][p][1]}")
         print(f"RLHF Sample 1: {rlhf_report['samples'][p][0]}")
         print(f"RLHF Sample 2: {rlhf_report['samples'][p][1]}")
 
