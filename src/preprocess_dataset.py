@@ -82,9 +82,10 @@ class data_loader:
         # tokenize
         tokenized = data_dict.map(
             lambda x: self.tokenize_example(x, max_length=max_length),
-            remove_columns=data_dict["train"].column_names,
+            remove_columns=["target", "sentiment"],  
             batched=False
         )
+
 
         # save tokens
         print(f"Saving tokenized dataset to: {self.save_dir}")

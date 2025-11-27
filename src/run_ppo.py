@@ -1,13 +1,25 @@
 from ppo_rlhf import PPOTrainer
 # from sft import toy_reward_fn # No longer needed
 from reward_model import RewardModel # Import the class
+from datasets import load_from_disk
 
-prompts = [
-    "Write a positive review:",
-    "Write a negative review:",
-    "Describe your day:",
-    "Tell me something funny:"
-]
+def load_sft_prompts(path="../data/tokenized_data", n=100):
+    raw = load_from_disk(path)
+    train_raw = raw["train"]
+    
+    prompts = []
+    for i in range(min(n, len(train_raw))):
+        prompts.append(train_raw[i]["prompt"])
+    return prompts
+
+# prompts = [
+#     "Write a positive review:",
+#     "Write a negative review:",
+#     "Describe your day:",
+#     "Tell me something funny:"
+# ]
+prompts = load_sft_prompts("../data/tokenized_data", 100)
+print("Loaded", len(prompts), "training prompts from SFT dataset.")
 
 # --- FIX (Part 1) ---
 # 1. Create an INSTANCE of the RewardModel first.
