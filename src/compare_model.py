@@ -9,13 +9,28 @@ SFT_MODEL_PATH = "../models/sft_model"
 RLHF_MODEL_PATH = "../models/rlhf_model"
 N_SAMPLES = 20 # 运行更多样本以获得更稳定的统计数据
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+#DEVICE = "cpu"
+
+# PROMPTS = [
+#     "Write a positive review:",
+#     "Write a negative review:",
+#     "The restaurant was",
+#     "I will never go back because"
+# ]
 
 PROMPTS = [
-    "Write a positive review:",
-    "Write a negative review:",
-    "The restaurant was",
-    "I will never go back because"
+    "Write a positive review of a newly opened Italian restaurant, using an enthusiastic tone.",
+    "The terrible service at this restaurant made me very unhappy. Write a strong negative complaint.",
+    "Objectively describe the dishes and environment of a Chinese restaurant, maintaining a neutral tone.",
+    "Recommend the most delicious dish you have ever eaten, using an extremely excited tone.",
+    "How would you review a coffee shop where the coffee is bad but the desserts are excellent?",
+    "Briefly state your opinion on a restaurant that offers takeout service, focusing on convenience.",
+    "Write a cautionary review about a restaurant's hygiene issues.",
+    "Describe a heartwarming experience during a family dinner.",
+    "Rate the restaurant's parking and accessibility.",
+    "You dined at an upscale restaurant. Write a complaint about the price."
 ]
+
 
 # --- 辅助函数：多样性计算 ---
 # (从你的 'evaluate_sft_model' 中提取)
