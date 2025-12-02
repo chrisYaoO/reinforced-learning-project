@@ -1,61 +1,56 @@
+# reward_model.py
 import torch
 import torch.nn.functional as F
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from collections import Counter
 import numpy as np
 
-# 情感分类模型（你自己 finetune 好的路径）
 SENTIMENT_MODEL_PATH = "../models/sentiment_classifier_yelp"
 
 
 class RewardModel:
+    """
+    总体奖励：
+        R(x, y) = α * R_sent_aligned
+                  - β * R_rep
+                  + γ * R_flu
+                  + δ * R_task
+
+    - R_sent_aligned: 基于 prompt 的情感目标（正/负/中性）对齐后的情感分 ∈ [-1, 1]
+    - R_rep: 重复惩罚，3-gram 级别，越重复越大 ∈ [0, 1]
+    - R_flu: 流畅度/多样性奖励，考虑 Distinct-2 + 长度 ∈ [0, 1]
+    - R_task: lexical constraints，对任务相关关键词的命中程度 ∈ [0, 1]
+    """
+
     def __init__(
         self,
-        alpha: float = 1.0,
-        beta: float = 0.3,
-        gamma: float = 0.1,
+        alpha: float = 0.7,   # 情感
+        beta: float = 0.6,    # 重复惩罚
+        gamma: float = 0.3,   # 流畅度/多样性
+        delta: float = 0.3,   # 任务关键词
         device: str | None = None,
     ):
-        """
-        总体奖励：
-            R(x, y) = α * R_sent_aligned - β * R_rep + γ * R_flu
-
-        其中：
-            - R_sent_aligned 会根据 prompt 的意图（正/负/中性）动态调整方向
-            - R_rep 是重复惩罚（越重复越大）
-            - R_flu 是流畅度/多样性奖励
-        """
         if device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
 
-        # 1. 情感模型 + 对应 tokenizer
         print(f"Loading sentiment classifier from: {SENTIMENT_MODEL_PATH}")
-        try:
-            self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
-                SENTIMENT_MODEL_PATH
-            ).to(self.device)
-            self.tokenizer = AutoTokenizer.from_pretrained(SENTIMENT_MODEL_PATH)
-            print("Sentiment classifier loaded.")
-        except OSError:
-            print(f"Error: Could not load model from {SENTIMENT_MODEL_PATH}. Please check the path.")
-            raise
+        self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
+            SENTIMENT_MODEL_PATH
+        ).to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(SENTIMENT_MODEL_PATH)
+        print("Sentiment classifier loaded.")
 
-        # 记录 num_labels 和“正向标签”的 index
         config = self.sentiment_model.config
-        self.num_labels = getattr(config, "num_labels", None) or 1
-
-        # 默认：二分类时假设 id=1 是 POSITIVE
+        self.num_labels = getattr(config, "num_labels", None) or 2
         self.pos_label_idx = 1 if self.num_labels >= 2 else 0
 
-        # 尝试从 config 中自动推断 POSITIVE 的 index
         if hasattr(config, "id2label"):
             try:
                 id2label = {int(k): v for k, v in config.id2label.items()}
                 for idx, name in id2label.items():
-                    name_u = str(name).upper()
-                    if "POS" in name_u:
+                    if "POS" in str(name).upper():
                         self.pos_label_idx = idx
                         break
             except Exception:
@@ -66,85 +61,92 @@ class RewardModel:
             f"pos_label_idx = {self.pos_label_idx}"
         )
 
-        # 2. n-gram 设置
-        self.rep_ngram = 3  # 重复惩罚使用 3-gram
-        self.flu_ngram = 2  # 流畅度里 Distinct-2
-        self.ideal_length = 40  # 期望长度
+        # n-gram 相关设置
+        self.rep_ngram = 3
+        self.flu_ngram = 2
+        self.ideal_length = 40
 
-        # 3. 系数（可做 ablation）
-        self.alpha = alpha  # Sentiment coeff
-        self.beta = beta    # Repetition penalty coeff
-        self.gamma = gamma  # Fluency coeff
+        # 系数
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
+        self.delta = delta
 
-    # ===== 判定 prompt 情感目标：positive / negative / neutral =====
+    # ========= Prompt 情感/任务解析 =========
+
     def _detect_prompt_polarity(self, prompt: str) -> str:
         """
-        根据 prompt 文本粗略判断用户需要的情感方向：
-            - "positive": 正向/暖心/推荐/兴奋
-            - "negative": 投诉/警告/卫生/价格不满等
-            - "neutral": 说明/客观描述/打分/便利性等
+        判定 prompt 的情感目标：
+            - "positive": 希望输出正向内容
+            - "negative": 希望输出负向/投诉/警告
+            - "neutral": 期望客观中性
         """
         p = prompt.lower()
 
         negative_keywords = [
-            "negative",
-            "complaint",
-            "terrible",
-            "awful",
-            "bad",
-            "poor",
-            "hate",
-            "hygiene issues",
-            "cautionary",
-            "warning",
-            "dirty",
-            "overpriced",
-            "too expensive",
-            "price complaint",
+            "negative", "complaint", "terrible", "awful", "bad", "poor",
+            "hate", "hygiene issues", "cautionary", "warning", "dirty",
+            "overpriced", "too expensive", "price complaint",
         ]
 
         positive_keywords = [
-            "positive",
-            "enthusiastic",
-            "excited",
-            "exciting",
-            "heartwarming",
-            "recommend",
-            "praise",
-            "love",
-            "delicious",
+            "positive", "enthusiastic", "excited", "exciting",
+            "heartwarming", "recommend", "praise", "love", "delicious",
+            "uplifting", "cheerful",
         ]
 
         neutral_keywords = [
-            "neutral tone",
-            "neutral",
-            "objectively",
-            "objective",
-            "describe",
-            "rate",
-            "briefly state your opinion",
-            "takeout service",
-            "parking",
-            "accessibility",
+            "neutral tone", "neutral", "objectively", "objective",
+            "describe", "rate", "briefly state your opinion",
+            "parking", "accessibility", "takeout service",
             "focusing on convenience",
         ]
 
-        # 优先判断负面
         if any(k in p for k in negative_keywords):
             return "negative"
-        # 再判断正面
         if any(k in p for k in positive_keywords):
             return "positive"
-        # 再判断中性
         if any(k in p for k in neutral_keywords):
             return "neutral"
-        # 默认偏正向（大部分 review task 在 sentiment RLHF 中都是倾向正向）
-        return "positive"
 
-    # ===== R_sent: 先算 Positive 概率，再对齐到 [-1, 1] =====
+        # 默认：中性，不强行偏正
+        return "neutral"
+
+    def _detect_task_keywords(self, prompt: str) -> list[str]:
+        """
+        基于 prompt 的语义，返回该任务关心的一组关键词（lexical constraints）
+        用于 R_task。
+        """
+        p = prompt.lower()
+
+        # 卫生 / 卫生警告
+        if "hygiene" in p or "dirty" in p or "cleanliness" in p:
+            return ["dirty", "unclean", "unsanitary", "hair", "smell", "smelly", "stain", "mold"]
+
+        # 价格相关投诉
+        if "price" in p or "overpriced" in p or "too expensive" in p:
+            return ["expensive", "overpriced", "too much", "pricey", "not worth", "rip-off"]
+
+        # 停车 / 便利性
+        if "parking" in p or "accessibility" in p:
+            return ["parking", "garage", "lot", "street parking", "accessible", "wheelchair", "stairs", "elevator"]
+
+        # 咖啡不好但甜点好
+        if "coffee" in p and "dessert" in p:
+            return ["bad coffee", "weak coffee", "bitter coffee", "excellent dessert", "great dessert", "cake", "pastry"]
+
+        # takeout / 外卖便利性
+        if "takeout" in p or "take-out" in p:
+            return ["takeout", "take-out", "to-go", "pickup", "delivery", "convenient"]
+
+        # 默认不加任务词约束
+        return []
+
+    # ========= R_sent 相关 =========
+
     def _compute_pos_prob(self, response_text: str) -> float:
         """
-        计算 response 是 'Positive' 的概率 (0.0 ~ 1.0)
+        用 finetune 的 classifier 计算 P(positive)，范围 [0,1]
         """
         try:
             inputs = self.tokenizer(
@@ -155,32 +157,47 @@ class RewardModel:
             ).to(self.device)
 
             with torch.no_grad():
-                outputs = self.sentiment_model(**inputs)
-                logits = outputs.logits  # [B, num_labels]
+                logits = self.sentiment_model(**inputs).logits
 
-            # 保证维度
             if logits.ndim == 1:
                 logits = logits.unsqueeze(0)
 
-            # 获取 Positive 的概率
             if self.num_labels == 1:
-                # 回归/单 logit：经 sigmoid
                 prob_positive = torch.sigmoid(logits)[0, 0].item()
             else:
-                # 多分类：softmax 后取 POS 标签
                 probs = F.softmax(logits, dim=-1)
                 C = probs.size(-1)
                 idx = min(max(self.pos_label_idx, 0), C - 1)
                 prob_positive = probs[0, idx].item()
 
             return float(prob_positive)
-
         except Exception as e:
-            print(f"Warning: R_sent calculation failed for text: '{response_text}'. Error: {e}")
-            # 失败时返回中性概率，避免奖励爆炸
+            print(f"[RewardModel] Warning in _compute_pos_prob: {e}")
             return 0.5
 
-    # ===== R_rep =====
+    def _compute_r_sent_aligned(self, prompt: str, response: str) -> float:
+        """
+        根据 prompt 的情感目标对齐情感得分，范围 [-1,1]
+        """
+        mode = self._detect_prompt_polarity(prompt)
+        pos_prob = self._compute_pos_prob(response)
+        base_sent = pos_prob * 2.0 - 1.0  # [0,1] -> [-1,1]
+
+        if mode == "positive":
+            # 越 positive 越好
+            return float(base_sent)
+        elif mode == "negative":
+            # 越 negative 越好 → 取反
+            return float(-base_sent)
+        else:
+            # neutral: 越接近中性越好
+            # pos_prob=0.5 时最好，使用抛物线：
+            # r = -4 * (p-0.5)^2 + 1  ∈ [-0,1]
+            r = -4.0 * (pos_prob - 0.5) ** 2 + 1.0
+            return float(max(-1.0, min(1.0, r)))
+
+    # ========= R_rep =========
+
     def _compute_r_rep(self, response_text: str) -> float:
         """
         n-gram 重复惩罚，返回 [0,1]，越大重复越严重
@@ -196,23 +213,24 @@ class RewardModel:
             ngram = tuple(tokens[i: i + n])
             ngrams[ngram] += 1
 
-        if not ngrams:
-            return 0.0
-
         total_ngrams = sum(ngrams.values())
         unique_ngrams = len(ngrams)
+        if total_ngrams == 0:
+            return 0.0
 
         repetition_score = (total_ngrams - unique_ngrams) / total_ngrams
         return float(repetition_score)
 
-    # ===== R_flu =====
+    # ========= R_flu =========
+
     def _compute_r_flu(self, response_text: str) -> float:
         """
-        流畅度 / 多样性奖励，组合 Distinct-2 和 长度奖励，返回 [0,1]
+        流畅度/多样性：结合 Distinct-2 + 长度
+        返回 [0,1]
         """
         tokens = response_text.lower().split()
 
-        # 1. Distinct-2
+        # Distinct-2
         n = self.flu_ngram
         if len(tokens) < n:
             diversity_score = 0.0
@@ -223,99 +241,121 @@ class RewardModel:
                 ngrams.add(ngram)
             diversity_score = len(ngrams) / (len(tokens) - n + 1)
 
-        # 2. 长度奖励 (Gaussian decay around ideal_length)
+        # 长度奖励（在 ideal_length ≈40 左右最好）
         length_diff = abs(len(tokens) - self.ideal_length)
         length_score = float(np.exp(-0.05 * length_diff))
 
         fluency_score = 0.5 * diversity_score + 0.5 * length_score
         return float(fluency_score)
 
-    # ===== 总 Reward：考虑 prompt 意图对齐 =====
-    def compute_reward(self, prompt: str, response: str) -> tuple[float, float, float, float]:
+    # ========= R_task =========
+
+    def _compute_r_task(self, prompt: str, response: str) -> float:
         """
-        返回: (final_reward, r_sent_aligned, r_rep, r_flu)
-
-        - r_sent_aligned: 根据 prompt 的情感目标 (pos/neg/neutral) 对齐后的情感分，范围 [-1, 1]
-        - r_rep: 重复惩罚 [0, 1]
-        - r_flu: 流畅度/多样性 [0, 1]
+        lexical constraints: 根据 prompt 需要的关键词，对 response 打额外奖励。
+        0 ~ 1，命中关键词越多，得分越高。
         """
-        # 1. 判断 prompt 情感目标
-        mode = self._detect_prompt_polarity(prompt)  # "positive" / "negative" / "neutral"
+        response_lower = response.lower()
+        keywords = self._detect_task_keywords(prompt)
+        if not keywords:
+            return 0.0
 
-        # 2. 计算 response 是 "Positive" 的概率 (0.0 ~ 1.0)
-        pos_prob = self._compute_pos_prob(response)
+        hits = sum(1 for kw in keywords if kw in response_lower)
+        if hits == 0:
+            return 0.0
 
-        # 映射到 [-1, 1] 的 "正向情感分"
-        # pos_prob = 1.0 → +1.0
-        # pos_prob = 0.0 → -1.0
-        base_sent = pos_prob * 2.0 - 1.0
+        # 简单归一化：命中 1 个 → 0.5，命中 >=2 → 1.0
+        score = min(1.0, hits * 0.5)
+        return float(score)
 
-        # 3. 根据 prompt 意图做对齐
-        if mode == "positive":
-            # 希望输出正向：base_sent 越大越好
-            r_sent_aligned = base_sent
-        elif mode == "negative":
-            # 希望输出负向：base_sent 越小越好 → 取反
-            r_sent_aligned = -base_sent
-        else:
-            # 中性：希望情感接近 0，过正/过负都扣分
-            # base_sent 越接近 0 越好：
-            #   base_sent = 0   → r = 0
-            #   base_sent = ±1 → r = -1
-            r_sent_aligned = -abs(base_sent)
+    # ========= 总 reward =========
 
-        # 4. 其他两项
+    def compute_reward(
+        self, prompt: str, response: str
+    ) -> tuple[float, float, float, float, float]:
+        """
+        返回:
+          - final_reward
+          - r_sent_aligned
+          - r_rep
+          - r_flu
+          - r_task
+        """
+        r_sent = self._compute_r_sent_aligned(prompt, response)
         r_rep = self._compute_r_rep(response)
         r_flu = self._compute_r_flu(response)
+        r_task = self._compute_r_task(prompt, response)
 
-        # 5. 最终 reward
-        final_reward = (self.alpha * r_sent_aligned) - (self.beta * r_rep) + (self.gamma * r_flu)
+        final_reward = (
+            self.alpha * r_sent
+            - self.beta * r_rep
+            + self.gamma * r_flu
+            + self.delta * r_task
+        )
 
-        return float(final_reward), float(r_sent_aligned), float(r_rep), float(r_flu)
+        return float(final_reward), float(r_sent), float(r_rep), float(r_flu), float(r_task)
 
 
-# 简单自测
 if __name__ == "__main__":
-    print("Initializing Reward Model...")
-    try:
-        reward_model = RewardModel(alpha=1.0, beta=0.3, gamma=0.1)
-    except Exception as e:
-        print("Model path not found or load error, strictly checking code logic only.")
-        print("Error:", e)
-        raise SystemExit
+    print("Initializing RewardModel for quick sanity check...")
+    rm = RewardModel()
 
-    print("\n--- Test Case 1: Prompt asks for POSITIVE, Response is POSITIVE ---")
-    prompt1 = "Write a positive one-sentence review:"
-    response1 = "The food was absolutely fantastic and the service was just as good!"
-    rew1, sent1, rep1, flu1 = reward_model.compute_reward(prompt1, response1)
-    print(f"Prompt: {prompt1}")
-    print(f"Response: {response1}")
-    print(f" -> R_sent_aligned (expect high positive): {sent1:.4f}")
-    print(f" -> Final Reward: {rew1:.4f}")
+    # tests = [
+    #     ("Write a positive one-sentence review:", "The food was absolutely fantastic and the service was great!"),
+    #     ("Write a strong negative complaint about the terrible service:", "The service was awful and the staff were extremely rude."),
+    #     ("Objectively describe the dishes and environment of a Chinese restaurant, maintaining a neutral tone.",
+    #      "The restaurant has bright lighting, wooden tables, and the dishes are served in simple white plates."),
+    #     ("Write a cautionary review about a restaurant's hygiene issues.",
+    #      "The restroom was dirty and the tables were sticky; it really felt unsanitary."),
+    #     ("You dined at an upscale restaurant. Write a complaint about the price.",
+    #      "The food was good, but the dishes were overpriced and not worth the money."),
+         
+    # ]
+    tests = [
+    # ===== 正向任务：response 强正向 → r_sent_aligned 应为正 =====
+    (
+        "Write a positive one-sentence review:",
+        "The food was absolutely fantastic and the service was great!"
+    ),
 
-    print("\n--- Test Case 2: Prompt asks for NEGATIVE, Response is NEGATIVE ---")
-    prompt2 = "Write a strong negative complaint about the terrible service:"
-    response2 = "The service was awful, the staff were rude, and I will never come back."
-    rew2, sent2, rep2, flu2 = reward_model.compute_reward(prompt2, response2)
-    print(f"Prompt: {prompt2}")
-    print(f"Response: {response2}")
-    print(f" -> R_sent_aligned (expect high positive because matches negative intent): {sent2:.4f}")
-    print(f" -> Final Reward: {rew2:.4f}")
+    # ===== 负向任务：response 强负向 → r_sent_aligned 应为正（匹配负向） =====
+    (
+        "Write a strong negative complaint about the terrible service:",
+        "The service was awful and the staff were extremely rude."
+    ),
 
-    print("\n--- Test Case 3: Prompt asks for NEGATIVE, Response is POSITIVE ---")
-    prompt3 = "Write a negative review:"
-    response3 = "I absolutely loved everything about this place, it was perfect!"
-    rew3, sent3, rep3, flu3 = reward_model.compute_reward(prompt3, response3)
-    print(f"Prompt: {prompt3}")
-    print(f"Response: {response3}")
-    print(f" -> R_sent_aligned (expect negative, mismatch with intent): {sent3:.4f}")
-    print(f" -> Final Reward: {rew3:.4f}")
+    # ===== 中性任务：response 中性客观 → r_sent_aligned 应为高分（接近 1） =====
+    (
+        "Objectively describe the dishes and environment of a Chinese restaurant, maintaining a neutral tone.",
+        "The restaurant has bright lighting, wooden tables, and the dishes are served in simple white plates."
+    ),
 
-    print("\n--- Test Case 4: Prompt asks for NEUTRAL, Response is very emotional ---")
-    prompt4 = "Objectively describe the dishes and environment of a Chinese restaurant, maintaining a neutral tone."
-    response4 = "The food was insanely amazing and I was incredibly happy the whole time!"
-    rew4, sent4, rep4, flu4 = reward_model.compute_reward(prompt4, response4)
-    print(f"Prompt: {prompt4}")
-    print(f"Response: {response4}")
-    print(f" -> R_sent_aligned (expect negative because too emotional for neutral): {sent4:.4f}")
-    print(f" -> Final Reward: {rew4:.4f}")
+    # ===== 负向任务：卫生问题 → response 负向 → r_sent_aligned 应为正（匹配负向） =====
+    (
+        "Write a cautionary review about a restaurant's hygiene issues.",
+        "The restroom was dirty and the tables were sticky; it really felt unsanitary."
+    ),
+
+    # # ===== 负向任务：价格抱怨 → response 负向 → r_sent_aligned 应为正（匹配负向） =====
+    # (
+    #     "You dined at an upscale restaurant. Write a complaint about the price.",
+    #     "The food was good, but the dishes were overpriced and not worth the money."
+    # ),
+        # ===== 负向任务：价格抱怨 → response 负向 → r_sent_aligned 应为正（匹配负向） =====
+    (
+        "You dined at an upscale restaurant. Write a complaint about the price.",
+        "The food was absolutely fantastic and the service was great! "
+    ),
+    ]
+
+
+    for p, r in tests:
+        fr, rs, rr, rf, rt = rm.compute_reward(p, r)
+        print("=" * 80)
+        print("PROMPT :", p)
+        print("RESP   :", r)
+        print(f"  R_sent_aligned = {rs:.3f}")
+        print(f"  R_rep          = {rr:.3f}")
+        print(f"  R_flu          = {rf:.3f}")
+        print(f"  R_task         = {rt:.3f}")
+        print(f"  FINAL_REWARD   = {fr:.3f}")
