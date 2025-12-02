@@ -21,9 +21,15 @@
       * runs
   * src
     * model
-    * preprocess
+    * preprocess_dataset
     * sft
-  * requirements
+    * train_sentiment_classifier
+    * reward_model
+    * ppo_rlhf
+    * run_ppo
+    * compare_model and plot
+
+  * requirements.txt
   * readme.md
 
 ### instruction
@@ -31,5 +37,6 @@
 2. run model.py to download model
 3. run preprocess_dataset to download and tokenize dataset
 4. run sft baseline to train and evaluate
-   1. train not tuned and evaluation not tested
-5. run command ```tensorboard --logdir results/sft_results/runs --port 6006``` and [localhost](http://localhost:6006/) to monitor runs
+5. pretrain the sentiment classfier to get the reward model
+6. run ppo
+7. evalute and plot
