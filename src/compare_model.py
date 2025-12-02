@@ -1,189 +1,437 @@
+# compare_model.py
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import numpy as np
-from collections import Counter
-from reward_model import RewardModel 
+import re
+import json
+import os
+from datetime import datetime
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from reward_model import RewardModel
 
-# --- 配置 ---
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 SFT_MODEL_PATH = "../models/sft_model"
 RLHF_MODEL_PATH = "../models/rlhf_model"
-N_SAMPLES = 20 # 运行更多样本以获得更稳定的统计数据
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-#DEVICE = "cpu"
 
-# PROMPTS = [
-#     "Write a positive review:",
-#     "Write a negative review:",
-#     "The restaurant was",
-#     "I will never go back because"
-# ]
+# 每个 prompt 生成多少个样本
+N_SAMPLES_PER_PROMPT = 5
+MAX_NEW_TOKENS = 40
+TEMPERATURE = 0.7
+TOP_P = 0.9
 
+# 结果输出目录
+RESULTS_DIR = "../results"
+
+# PROMPTS：你自己定义的一组正向/负向 prompt
 PROMPTS = [
-    "Write a positive review of a newly opened Italian restaurant, using an enthusiastic tone.",
-    "The terrible service at this restaurant made me very unhappy. Write a strong negative complaint.",
-    "Objectively describe the dishes and environment of a Chinese restaurant, maintaining a neutral tone.",
-    "Recommend the most delicious dish you have ever eaten, using an extremely excited tone.",
-    "How would you review a coffee shop where the coffee is bad but the desserts are excellent?",
-    "Briefly state your opinion on a restaurant that offers takeout service, focusing on convenience.",
-    "Write a cautionary review about a restaurant's hygiene issues.",
-    "Describe a heartwarming experience during a family dinner.",
-    "Rate the restaurant's parking and accessibility.",
-    "You dined at an upscale restaurant. Write a complaint about the price."
+    "Write a cheerful and enthusiastic review about how delicious the pasta dishes were.",
+    "Give a positive one-sentence comment praising the friendly service at the café.",
+    "Write a short energetic review about the fresh sushi you enjoyed today.",
+    "Write a warm and heartwarming review about your cozy family dinner.",
+    "Write a positive review celebrating the flavorful ramen and amazing broth.",
+    "Write a happy and uplifting review about the refreshing smoothie you ordered.",
+    "Write a brief positive praise for the polite waiter and excellent customer service.",
+    "Write an encouraging review about your great experience at a newly opened brunch spot.",
+    "Write a harsh complaint about the slow service and rude staff at the restaurant.",
+    "Give a strong negative review about the burnt pizza and awful seasoning.",
+    "Write a one-sentence complaint about the cold food and long waiting time.",
+    "Write a critical review describing the dirty restroom and poor hygiene conditions.",
+    "Write a disappointed review about the bland curry and flavorless soup.",
+    "Write a negative comment about the overpriced dishes and terrible coffee.",
+    "Write a harsh review criticizing the soggy fries and oily dishes.",
+    "Write a complaint about the chaotic management and unprofessional staff."
 ]
 
 
-# --- 辅助函数：多样性计算 ---
-# (从你的 'evaluate_sft_model' 中提取)
-def evaluate_diversity(texts):
-    """Calculates distinct-1, distinct-2, and tri-gram repetition."""
-    tokens = [t.lower().split() for t in texts]
-    
-    # Distinct-1
-    d1_total = 0
-    d1_unique = 0
-    for tk in tokens:
-        d1_total += len(tk)
-        d1_unique += len(set(tk))
-    distinct_1 = d1_unique / d1_total if d1_total > 0 else 0
-
-    # Distinct-2
-    d2_total = 0
-    d2_unique = 0
-    for tk in tokens:
-        bigrams = set()
-        for i in range(len(tk) - 1):
-            bigrams.add(tuple(tk[i:i+2]))
-        d2_total += len(tk) - 1
-        d2_unique += len(bigrams)
-    distinct_2 = d2_unique / d2_total if d2_total > 0 else 0
-
-    # Tri-gram repetition
-    tri_rep_rates = []
-    for tk in tokens:
-        if len(tk) < 3:
-            continue
-        trigrams = Counter()
-        for i in range(len(tk) - 2):
-            trigrams[tuple(tk[i:i+3])] += 1
-        
-        if not trigrams:
-            continue
-            
-        total_trigrams = sum(trigrams.values())
-        unique_trigrams = len(trigrams)
-        tri_rep_rates.append((total_trigrams - unique_trigrams) / total_trigrams)
-        
-    tri_repeat = np.mean(tri_rep_rates) if tri_rep_rates else 0
-
-    return {
-        "distinct_1": distinct_1,
-        "distinct_2": distinct_2,
-        "tri_repeat": tri_repeat
-    }
-
-# --- 核心评估函数 ---
-def evaluate_model(model_path: str, tokenizer: AutoTokenizer, reward_model: RewardModel, prompts: list):
+def generate_many(
+    model,
+    tokenizer,
+    prompts,
+    n_samples_per_prompt: int,
+    max_new_tokens: int,
+    temperature: float,
+    top_p: float,
+):
     """
-    Loads a model, generates responses for all prompts, and evaluates them
-    using the REAL reward model.
+    对每个 prompt 生成 n_samples_per_prompt 条回复。
+    返回：
+        all_prompts: [p0, p0, ..., p1, p1, ...]
+        all_texts  : 对应生成的文本
     """
-    print(f"Loading model: {model_path}")
-    model = AutoModelForCausalLM.from_pretrained(model_path).to(DEVICE)
     model.eval()
-
-    generations = {}
-    all_rewards = []
+    all_prompts = []
     all_texts = []
-    
-    print(f"Generating {N_SAMPLES} samples for {len(prompts)} prompts...")
-    for p in prompts:
-        prompt_generations = []
-        for _ in range(N_SAMPLES):
-            inputs = tokenizer(p, return_tensors="pt").to(DEVICE)
-            with torch.no_grad():
+
+    with torch.no_grad():
+        for prompt in prompts:
+            inputs = tokenizer(
+                prompt,
+                return_tensors="pt",
+                truncation=True,
+                max_length=64,
+            ).to(DEVICE)
+
+            for _ in range(n_samples_per_prompt):
                 out = model.generate(
                     **inputs,
-                    max_new_tokens=40,
+                    max_new_tokens=max_new_tokens,
                     do_sample=True,
-                    top_p=0.9,
-                    temperature=0.7,
-                    pad_token_id=tokenizer.eos_token_id
+                    temperature=temperature,
+                    top_p=top_p,
+                    pad_token_id=tokenizer.eos_token_id,
                 )
-            full = tokenizer.decode(out[0], skip_special_tokens=True)
-            response = full[len(p):].strip()
-            
-            prompt_generations.append(response)
-            all_texts.append(response)
-            
-            # --- 关键修复 ---
-            # 调用真实的奖励函数，它需要 prompt 和 response
-            # 并且它返回一个元组，我们取第一个元素
-            reward_tuple = reward_model.compute_reward(prompt=p, response=response)
-            all_rewards.append(reward_tuple[0]) # [0] is the final_reward
-        
-        generations[p] = prompt_generations
 
-    # --- 计算指标 ---
-    mean_reward = np.mean(all_rewards)
-    diversity_metrics = evaluate_diversity(all_texts)
-    
-    return {
+                # 只取新生成部分
+                gen = tokenizer.decode(
+                    out[0][inputs["input_ids"].shape[-1]:],
+                    skip_special_tokens=True,
+                ).strip()
+
+                all_prompts.append(prompt)
+                all_texts.append(gen)
+
+    return all_prompts, all_texts
+
+
+# ========= 多样性指标 =========
+def _tok(s: str):
+    return re.findall(r"\w+|\S", s)
+
+
+def distinct_n_ratio(texts: list[str], n: int = 1) -> float:
+    ngrams = []
+    for t in texts:
+        toks = _tok(t)
+        ngrams += [tuple(toks[i:i + n]) for i in range(len(toks) - n + 1)]
+    if not ngrams:
+        return 0.0
+    return len(set(ngrams)) / len(ngrams)
+
+
+def trigram_repeat_rate(texts: list[str]) -> float:
+    total, dup = 0, 0
+    for t in texts:
+        toks = _tok(t)
+        trigrams = [tuple(toks[i:i + 3]) for i in range(len(toks) - 2)]
+        total += len(trigrams)
+        dup += (len(trigrams) - len(set(trigrams)))
+    return (dup / total) if total > 0 else 0.0
+
+
+def evaluate_model(model_path: str, reward_model: RewardModel):
+    """
+    对一个给定的 CausalLM 模型做评估：
+      - 固定 PROMPTS，每个生成 N_SAMPLES_PER_PROMPT 条
+      - 用 RewardModel.compute_reward(prompt, response) 计算 reward
+      - 统计 mean/std + 多样性指标
+    """
+    print(f"Loading model from: {model_path}")
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    model = AutoModelForCausalLM.from_pretrained(model_path).to(DEVICE)
+
+    # 生成
+    all_prompts, all_texts = generate_many(
+        model=model,
+        tokenizer=tokenizer,
+        prompts=PROMPTS,
+        n_samples_per_prompt=N_SAMPLES_PER_PROMPT,
+        max_new_tokens=MAX_NEW_TOKENS,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+    )
+
+    # 计算 reward
+    rewards = []
+    for p, r in zip(all_prompts, all_texts):
+        final_r, r_sent, r_rep, r_flu, r_task = reward_model.compute_reward(p, r)
+        rewards.append(final_r)
+    rewards = np.array(rewards, dtype=np.float32)
+
+    mean_reward = float(rewards.mean()) if len(rewards) > 0 else 0.0
+    std_reward = float(rewards.std()) if len(rewards) > 1 else 0.0
+
+    # 多样性指标
+    d1 = distinct_n_ratio(all_texts, n=1)
+    d2 = distinct_n_ratio(all_texts, n=2)
+    tri_rep = trigram_repeat_rate(all_texts)
+
+    stats = {
         "mean_reward": mean_reward,
-        "diversity": diversity_metrics,
-        "samples": {p: generations[p][:2] for p in prompts} # Save 2 samples for qualitative review
+        "std_reward": std_reward,
+        "distinct_1": d1,
+        "distinct_2": d2,
+        "tri_repeat": tri_rep,
     }
 
-# --- 主对比逻辑 ---
-def compare_models():
-    
-    # --- 关键修复：实例化你真正的 RewardModel ---
-    print("Initializing Real Reward Model (Judge)...")
-    # 这会加载你（Wei Wang）的分类器
-    reward_model_instance = RewardModel() 
-    print("Reward Model loaded.")
+    return stats, all_prompts, all_texts, rewards
 
-    # 我们需要一个 SFT 模型的 Tokenizer 来加载
-    # 两个模型都使用相同的 Tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(SFT_MODEL_PATH)
-    tokenizer.pad_token = tokenizer.eos_token
 
-    print("\n=== Evaluating SFT Model (Baseline) ===")
-    sft_report = evaluate_model(
-        model_path=SFT_MODEL_PATH,
-        tokenizer=tokenizer,
-        reward_model=reward_model_instance, # 使用真正的裁判
-        prompts=PROMPTS
-    )
-
-    print("\n=== Evaluating RLHF Model (PPO-Tuned) ===")
-    rlhf_report = evaluate_model(
-        model_path=RLHF_MODEL_PATH,
-        tokenizer=tokenizer,
-        reward_model=reward_model_instance, # 使用同一个真正的裁判
-        prompts=PROMPTS
-    )
-
-    # --- 打印对比表 ---
+def print_comparison_table(sft_stats, rlhf_stats):
     print("\n================= MODEL COMPARISON =================")
-    print(f"{'Metric':<20}{'SFT (Baseline)':<20}{'RLHF (PPO)':<20}")
-    print("-" * 60)
-    print(f"{'Mean Reward':<20}{sft_report['mean_reward']:<20.3f}{rlhf_report['mean_reward']:<20.3f}")
-    print(f"{'Distinct-1':<20}{sft_report['diversity']['distinct_1']:<20.3f}{rlhf_report['diversity']['distinct_1']:<20.3f}")
-    print(f"{'Distinct-2':<20}{sft_report['diversity']['distinct_2']:<20.3f}{rlhf_report['diversity']['distinct_2']:<20.3f}")
-    print(f"{'Tri-Repeat':<20}{sft_report['diversity']['tri_repeat']:<20.3f}{rlhf_report['diversity']['tri_repeat']:<20.3f}")
+    print(f"{'Metric':20s}{'SFT (Baseline)':>18s}{'RLHF (PPO)':>18s}")
+    print("------------------------------------------------------------")
+    print(
+        f"{'Mean Reward':20s}"
+        f"{sft_stats['mean_reward']:>18.3f}"
+        f"{rlhf_stats['mean_reward']:>18.3f}"
+    )
+    print(
+        f"{'Std Reward':20s}"
+        f"{sft_stats['std_reward']:>18.3f}"
+        f"{rlhf_stats['std_reward']:>18.3f}"
+    )
+    print(
+        f"{'Distinct-1':20s}"
+        f"{sft_stats['distinct_1']:>18.3f}"
+        f"{rlhf_stats['distinct_1']:>18.3f}"
+    )
+    print(
+        f"{'Distinct-2':20s}"
+        f"{sft_stats['distinct_2']:>18.3f}"
+        f"{rlhf_stats['distinct_2']:>18.3f}"
+    )
+    print(
+        f"{'Tri-Repeat':20s}"
+        f"{sft_stats['tri_repeat']:>18.3f}"
+        f"{rlhf_stats['tri_repeat']:>18.3f}"
+    )
 
-    # --- 打印定性样本 ---
-    print("\n================= SAMPLE OUTPUTS =================")
-    for p in PROMPTS:
-        print(f"\nPrompt: {p}")
-        print("--------------------------------------------------")
-        print(f"SFT Sample 1:  {sft_report['samples'][p][0]}")
-        print(f"SFT Sample 2:  {sft_report['samples'][p][1]}")
-        print(f"RLHF Sample 1: {rlhf_report['samples'][p][0]}")
-        print(f"RLHF Sample 2: {rlhf_report['samples'][p][1]}")
 
-    print("\n====================================================")
+def print_samples_side_by_side(
+    sft_texts,
+    sft_rewards,
+    rlhf_texts,
+    rlhf_rewards,
+    n_prompts_to_show: int = 5,
+):
+    """
+    只展示每个 prompt 的第一个 sample（sample_idx = 0）。
+    """
+    print("\n================= SAMPLE OUTPUTS (subset) =================")
+    n_prompts_to_show = min(n_prompts_to_show, len(PROMPTS))
+
+    for i in range(n_prompts_to_show):
+        prompt = PROMPTS[i]
+        base_idx = i * N_SAMPLES_PER_PROMPT
+
+        sft_text = sft_texts[base_idx]
+        sft_reward = sft_rewards[base_idx]
+
+        rlhf_text = rlhf_texts[base_idx]
+        rlhf_reward = rlhf_rewards[base_idx]
+
+        print(f"\nPrompt: {prompt}")
+        print("-" * 50)
+        print(f"SFT Sample:  {sft_text}")
+        print(f"SFT Reward:  {sft_reward:.3f}")
+        print()
+        print(f"RLHF Sample: {rlhf_text}")
+        print(f"RLHF Reward: {rlhf_reward:.3f}")
+
+
+# ========= 把结果写入 JSON / TXT =========
+def build_json_report(
+    sft_stats,
+    rlhf_stats,
+    sft_texts,
+    sft_rewards,
+    rlhf_texts,
+    rlhf_rewards,
+):
+    """
+    生成适合写入 JSON 的结构：
+    - overall metrics
+    - per-prompt, per-model, per-sample 文本 + reward
+    """
+    report = {
+        "sft_stats": sft_stats,
+        "rlhf_stats": rlhf_stats,
+        "prompts": PROMPTS,
+        "per_prompt": []
+    }
+
+    sft_rewards_list = sft_rewards.tolist()
+    rlhf_rewards_list = rlhf_rewards.tolist()
+
+    for i, prompt in enumerate(PROMPTS):
+        start = i * N_SAMPLES_PER_PROMPT
+        end = start + N_SAMPLES_PER_PROMPT
+
+        sft_samples = [
+            {
+                "text": sft_texts[j],
+                "reward": float(sft_rewards_list[j]),
+            }
+            for j in range(start, end)
+        ]
+        rlhf_samples = [
+            {
+                "text": rlhf_texts[j],
+                "reward": float(rlhf_rewards_list[j]),
+            }
+            for j in range(start, end)
+        ]
+
+        report["per_prompt"].append(
+            {
+                "prompt": prompt,
+                "sft_samples": sft_samples,
+                "rlhf_samples": rlhf_samples,
+            }
+        )
+
+    return report
+
+
+def build_txt_report_string(
+    sft_stats,
+    rlhf_stats,
+    sft_texts,
+    sft_rewards,
+    rlhf_texts,
+    rlhf_rewards,
+    n_prompts_to_show: int = 5,
+) -> str:
+    """
+    构造一个和终端输出版类似的文本，用于写入 .txt 文件
+    """
+    lines = []
+    lines.append("================= MODEL COMPARISON =================")
+    lines.append(f"{'Metric':20s}{'SFT (Baseline)':>18s}{'RLHF (PPO)':>18s}")
+    lines.append("------------------------------------------------------------")
+    lines.append(
+        f"{'Mean Reward':20s}"
+        f"{sft_stats['mean_reward']:>18.3f}"
+        f"{rlhf_stats['mean_reward']:>18.3f}"
+    )
+    lines.append(
+        f"{'Std Reward':20s}"
+        f"{sft_stats['std_reward']:>18.3f}"
+        f"{rlhf_stats['std_reward']:>18.3f}"
+    )
+    lines.append(
+        f"{'Distinct-1':20s}"
+        f"{sft_stats['distinct_1']:>18.3f}"
+        f"{rlhf_stats['distinct_1']:>18.3f}"
+    )
+    lines.append(
+        f"{'Distinct-2':20s}"
+        f"{sft_stats['distinct_2']:>18.3f}"
+        f"{rlhf_stats['distinct_2']:>18.3f}"
+    )
+    lines.append(
+        f"{'Tri-Repeat':20s}"
+        f"{sft_stats['tri_repeat']:>18.3f}"
+        f"{rlhf_stats['tri_repeat']:>18.3f}"
+    )
+
+    lines.append("")
+    lines.append("================= SAMPLE OUTPUTS (subset) =================")
+
+    n_prompts_to_show = min(n_prompts_to_show, len(PROMPTS))
+
+    for i in range(n_prompts_to_show):
+        prompt = PROMPTS[i]
+        base_idx = i * N_SAMPLES_PER_PROMPT
+
+        sft_text = sft_texts[base_idx]
+        sft_reward = float(sft_rewards[base_idx])
+
+        rlhf_text = rlhf_texts[base_idx]
+        rlhf_reward = float(rlhf_rewards[base_idx])
+
+        lines.append("")
+        lines.append(f"Prompt: {prompt}")
+        lines.append("--------------------------------------------------")
+        lines.append(f"SFT Sample:  {sft_text}")
+        lines.append(f"SFT Reward:  {sft_reward:.3f}")
+        lines.append("")
+        lines.append(f"RLHF Sample: {rlhf_text}")
+        lines.append(f"RLHF Reward: {rlhf_reward:.3f}")
+
+    return "\n".join(lines)
+
+
+def save_results(
+    sft_stats,
+    rlhf_stats,
+    sft_texts,
+    sft_rewards,
+    rlhf_texts,
+    rlhf_rewards,
+):
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    json_report = build_json_report(
+        sft_stats,
+        rlhf_stats,
+        sft_texts,
+        sft_rewards,
+        rlhf_texts,
+        rlhf_rewards,
+    )
+    txt_report = build_txt_report_string(
+        sft_stats,
+        rlhf_stats,
+        sft_texts,
+        sft_rewards,
+        rlhf_texts,
+        rlhf_rewards,
+        n_prompts_to_show=5,
+    )
+
+    json_path = os.path.join(RESULTS_DIR, f"compare_results_{timestamp}.json")
+    txt_path = os.path.join(RESULTS_DIR, f"compare_results_{timestamp}.txt")
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(json_report, f, ensure_ascii=False, indent=2)
+
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(txt_report)
+
+    print(f"\nResults saved to:")
+    print(f"  JSON: {json_path}")
+    print(f"  TXT : {txt_path}")
+
+
+def main():
+    print("Initializing Real Reward Model (Judge)...")
+    reward_model = RewardModel()
+    print("Reward Model loaded.\n")
+
+    print("=== Evaluating SFT (Baseline) ===")
+    sft_stats, sft_prompts, sft_texts, sft_rewards = evaluate_model(
+        SFT_MODEL_PATH, reward_model
+    )
+
+    print("\n=== Evaluating RLHF (PPO) ===")
+    rlhf_stats, rlhf_prompts, rlhf_texts, rlhf_rewards = evaluate_model(
+        RLHF_MODEL_PATH, reward_model
+    )
+
+    print_comparison_table(sft_stats, rlhf_stats)
+    print_samples_side_by_side(
+        sft_texts,
+        sft_rewards,
+        rlhf_texts,
+        rlhf_rewards,
+        n_prompts_to_show=5,
+    )
+
+    # 写入 JSON + TXT
+    save_results(
+        sft_stats,
+        rlhf_stats,
+        sft_texts,
+        sft_rewards,
+        rlhf_texts,
+        rlhf_rewards,
+    )
 
 
 if __name__ == "__main__":
-    compare_models()
+    main()
