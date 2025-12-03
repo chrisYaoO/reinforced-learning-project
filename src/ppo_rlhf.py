@@ -11,14 +11,14 @@ from dataclasses import dataclass
 
 @dataclass
 class PPOConfig:
-    lr: float = 3e-5
-    kl_coef: float = 0.1
+    lr: float = 5e-6
+    kl_coef: float = 0.2
     clip_range: float = 0.2
-    ppo_epochs: int = 4
-    batch_size: int = 8
+    ppo_epochs: int = 6
+    batch_size: int = 16
     max_new_tokens: int = 40
-    entropy_coef: float = 0.01
-    kl_threshold: float = 3.0
+    entropy_coef: float = 0.02
+    kl_threshold: float = 1.0
 
 
 class PPOTrainer:
@@ -45,6 +45,14 @@ class PPOTrainer:
         self.reward_fn = reward_fn
         self.cfg = PPOConfig()
         self.optimizer = optim.Adam(self.policy.parameters(), lr=self.cfg.lr)
+
+        self.train_logs = {
+            "iteration": [],
+            "reward": [],
+            "kl": [],
+            "length": [],
+            "distinct_1": []
+        }
 
     # ========= 采样 =========
 
@@ -152,6 +160,8 @@ class PPOTrainer:
                 advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
 
             ratio = torch.exp(new_lps - old_logprobs)
+            ratio = torch.clamp(ratio, 0.5, 2.0)
+
             surr1 = ratio * advantages
             surr2 = torch.clamp(ratio, 1.0 - self.cfg.clip_range, 1.0 + self.cfg.clip_range) * advantages
 
@@ -168,6 +178,8 @@ class PPOTrainer:
                 f"{batch_prefix}[PPO] epoch {epoch+1}/{self.cfg.ppo_epochs}, "
                 f"loss={loss.item():.4f}, mean KL={mean_kl.item():.4f}"
             )
+
+        return mean_kl
 
     # ========= 主训练循环 =========
 
@@ -203,8 +215,30 @@ class PPOTrainer:
                     lp = self.compute_logprobs(self.policy, input_ids, attention_mask, labels)
 
                 old_logprobs.append(lp)
+             # --- Logging ---
+            avg_reward = float(np.mean(rewards))
+            avg_length = float(np.mean([len(r.split()) for r in responses]))
 
-            self.ppo_step(batch_prompts, responses, rewards, old_logprobs,self.cfg.batch_size)
+            # distinct-1
+            all_tokens = []
+            for r in responses:
+                toks = r.lower().split()
+                all_tokens += toks
+            distinct_1 = len(set(all_tokens)) / (len(all_tokens) + 1e-8)
+
+            self.train_logs["iteration"].append(float(start))
+            self.train_logs["reward"].append(float(avg_reward))
+            self.train_logs["length"].append(float(avg_length))
+            self.train_logs["distinct_1"].append(float(distinct_1))
+
+            current_kl = self.ppo_step(batch_prompts, responses, rewards, old_logprobs,self.cfg.batch_size)
+            self.train_logs["kl"].append(current_kl.detach().cpu().item())
+
+        
+        import json
+        with open("ppo_training_logs.json", "w") as f:
+            json.dump(self.train_logs, f, indent=2)
+        print("Saved PPO logs to ppo_training_logs.json")
 
         print("\nFinished PPO RLHF training!")
 
