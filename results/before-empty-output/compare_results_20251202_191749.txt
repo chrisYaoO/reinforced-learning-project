@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.492             0.623
+Std Reward                       0.517             0.379
+Distinct-1                       0.140             0.138
+Distinct-2                       0.439             0.456
+Tri-Repeat                       0.120             0.131
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The staff were friendly and helpful.  They had the best pasta I have ever had.  The service was nice and the food was good.  The service was good and the food was good
+SFT Reward:  0.864
+
+RLHF Sample: We had a great time and enjoyed our meal.  They have a great selection of dishes that are perfect for a lunch buffet.  If you like the food, you should check out the selection
+RLHF Reward: 0.951
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  \n\nI have been in Vegas for the past few years and have been very impressed by the service.\n\nMy favorite part of the meal is the grilled chicken with the garlic
+SFT Reward:  0.927
+
+RLHF Sample: The staff are friendly and attentive.  I'm glad I came here to take the time to get the coffee.  I will definitely be back.  I will be back next week.  I
+RLHF Reward: 0.933
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  I went to the sushi bar for a quick meal and there was a lot of flavor and variety.  The food was good, but the quality of the sushi was not great.  I think
+SFT Reward:  0.946
+
+RLHF Sample: The staff was friendly, and the sushi was fresh.  Their staff is friendly, and the sushi was fresh.  They are friendly, and the sushi was fresh.  They are friendly,
+RLHF Reward: -0.062
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nIt's a place that's always very warm.
+SFT Reward:  0.868
+
+RLHF Sample: \nI went to my husband's house on Saturday night to celebrate his birthday, and we both got our dinner ready.  The family dinner was good and the food was delicious.  It
+RLHF Reward: 0.940
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The service is always good.  I have never had a ramen in a store and I had the opportunity to try it myself.  The service was good and the broth was great.
+SFT Reward:  0.940
+
+RLHF Sample: \n\nI was fortunate to be in Las Vegas for a great meal, and I really appreciate the staff and the food. I am very excited to be back in Las Vegas with a new
+RLHF Reward: 0.922

@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.532             0.588
+Std Reward                       0.451             0.373
+Distinct-1                       0.156             0.144
+Distinct-2                       0.472             0.428
+Tri-Repeat                       0.101             0.153
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  I had the chicken and rice with a salad and the tomato sauce.  The rice was good but the salad was not good.   I had the ham and tuna salad and they were
+SFT Reward:  -0.462
+
+RLHF Sample: The sauce was very good.   The pasta was very good.  The pasta was very good.  The pasta was very good.  The pasta was very good.  The pasta
+RLHF Reward: 0.376
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  The staff is always friendly and always very helpful.  When I come in to eat, I order the same thing.  I'm also very impressed with the food selection and the staff.
+SFT Reward:  0.938
+
+RLHF Sample: The staff is friendly and the staff is friendly. I would love to try this place again. The staff is friendly. I would love to try this place again. The staff is friendly. I would
+RLHF Reward: 0.567
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  I have been to the Yaki place twice and had never been to a sushi place before.  I was there twice and the first time was the first time I had been here twice.
+SFT Reward:  0.918
+
+RLHF Sample: I had the fish tacos and the pork nuggets and the red chili. I was really disappointed with the choices and not the quality of the food.  I had the rice and the shrimp.
+RLHF Reward: 0.250
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  We can't wait to share this place with you!  If you love your family dinner, it's a must.  It's a great place to eat with friends and family.  The
+SFT Reward:  0.920
+
+RLHF Sample: We have had the best of this family and they are so very friendly and accommodating. We had the best dinner in the whole family and we have been to the best places in town. We had the
+RLHF Reward: 0.919
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The staff was great and very friendly. \n\nThe noodles are delicious. The staff is super friendly. The menu is very good and the food is very good. The food is good.
+SFT Reward:  0.900
+
+RLHF Sample: The meat and the noodles were good too. The flavors were good too. The meat and the noodles were good too. The noodles were good too. The noodles were good too. The noodles were good
+RLHF Reward: 0.463

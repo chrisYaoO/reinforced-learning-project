@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.542             0.562
+Std Reward                       0.556             0.516
+Distinct-1                       0.146             0.135
+Distinct-2                       0.443             0.376
+Tri-Repeat                       0.129             0.257
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The pasta was fresh and had the flavor of it.  The dish was delicious and had the flavor of it.  The pasta was delicious and had the flavor of it.  The pasta was
+SFT Reward:  0.866
+
+RLHF Sample: The pasta was so delicious that I almost went to the restaurant to order a plate of the pasta.   The pasta was so tasty that I almost went to the restaurant to order a plate
+RLHF Reward: 0.898
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  \n\nWe love the staff and the atmosphere.  We have had a great time here and it is very nice.  \n\nThe staff is very friendly and they have
+SFT Reward:  0.917
+
+RLHF Sample: The service was friendly and the prices were very reasonable.  The food was delicious and the service was friendly.  The staff is friendly.  The food was delicious and the service was friendly
+RLHF Reward: 0.886
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  
+SFT Reward:  -0.700
+
+RLHF Sample: 
+RLHF Reward: -0.700
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  I am so happy to have been here for the last 10 years. I have always been impressed with the atmosphere and the food. I also love the service. I can't wait to see what this
+SFT Reward:  0.967
+
+RLHF Sample: The staff was friendly, and the food was delicious. The waiter was a great service, and the food was delicious. The server was friendly, and the food was delicious. The server was a great
+RLHF Reward: 0.884
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  
+SFT Reward:  -0.700
+
+RLHF Sample: The service was great and the food was delicious.  The staff was friendly and friendly.  The service was great and the food was delicious.  The staff was friendly and friendly.  The service
+RLHF Reward: 0.868

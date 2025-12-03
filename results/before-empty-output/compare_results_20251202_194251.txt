@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.527             0.503
+Std Reward                       0.447             0.454
+Distinct-1                       0.143             0.163
+Distinct-2                       0.440             0.496
+Tri-Repeat                       0.115             0.108
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The pasta was good and the sauce was very tasty.  I would recommend a few of the many other options.  I also recommend a few of the dishes in the menu.  I also recommend
+SFT Reward:  0.852
+
+RLHF Sample: I love the fact that I live in a small town and I enjoy the fact that I live in a small town, but I can't remember a better time to get a good meal.
+RLHF Reward: 0.775
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  They are very friendly and the staff are very friendly.  The server is very nice and friendly.   The staff is very nice and the staff are very friendly.  The server is very
+SFT Reward:  0.669
+
+RLHF Sample: We will not be staying at the restaurant for a while.  I will continue to be in the restaurant.  I have always been a big fan of the Italian food in my life.
+RLHF Reward: 0.426
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  
+SFT Reward:  0.716
+
+RLHF Sample: I love the sushi I have been eating in Vegas for so long, and I am not even sure what to write about it.  It is the only place I can write about it.  I
+RLHF Reward: 0.666
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  This is a great place to have a family dinner with friends.  This is what your family is looking for.  The food is so good and the wine is great.  The service is amazing
+SFT Reward:  0.951
+
+RLHF Sample: It is a wonderful place to get a nice breakfast meal or two.  You can also get a special treat from a local eatery or a local restaurant.  We have been here for over
+RLHF Reward: 0.945
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The noodles were excellent and the broth was great.  I also ordered the sesame shrimp soup and the pork chops.  The soup was so delicious.  I've never had any of the
+SFT Reward:  0.935
+
+RLHF Sample: I'm a fan of the good old school ramen and I love to try new things at a local market.  It's always great to have a good ramen to enjoy, but the
+RLHF Reward: 0.939

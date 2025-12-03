@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.401             0.679
+Std Reward                       0.601             0.370
+Distinct-1                       0.147             0.139
+Distinct-2                       0.433             0.429
+Tri-Repeat                       0.176             0.145
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  They had a good selection of pasta and it was really good.  \n\nWe had the pasta and it was a great deal of it.  The bread was good but the bread
+SFT Reward:  0.892
+
+RLHF Sample: The service was friendly, friendly and the service was great.  We had a great time eating and the service was good.  The bread was fresh and the sauce was not too salty. The seasoning
+RLHF Reward: 0.890
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  It's the perfect place to start your day with a drink.   The cafe is open to all.    The server is friendly, helpful, and friendly.  The staff
+SFT Reward:  0.918
+
+RLHF Sample: I had been to this place for years and it is very welcoming and I am very grateful for their service.  The staff is friendly and the staff is very professional.  I will definitely recommend
+RLHF Reward: 0.934
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  It's a good place to get sushi for the sake of sushi, but it's also very expensive.  It's a little pricey, but I like it.  It's not a big
+SFT Reward:  0.706
+
+RLHF Sample: You will not go wrong.  The best sushi I've had in the past 10 years.  The best sushi I've had.  I will not go wrong.  The best sushi I
+RLHF Reward: 0.107
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  I have been to a bar twice now and I have never had the same experience. It was a huge surprise to see my family on the inside of the bar.  It was a nice experience for
+SFT Reward:  0.938
+
+RLHF Sample: \nThis place has been a must for us for years!  We were so happy to be able to get in and out of this place!  We are always looking for the perfect spot to
+RLHF Reward: 0.955
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  I have been to the Ramen at least twice in the past and I would have liked to see more ramen here.  It was very delicious!  The rice noodles were very fresh and
+SFT Reward:  0.951
+
+RLHF Sample: The broth is rich and fresh, the flavors are not just delicious but they are addictive. I highly recommend the Tamari, the Ramen, the Ramen. I also recommend the Yum!
+RLHF Reward: 0.931

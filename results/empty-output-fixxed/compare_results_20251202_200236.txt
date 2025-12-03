@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.517             0.615
+Std Reward                       0.556             0.471
+Distinct-1                       0.138             0.131
+Distinct-2                       0.426             0.393
+Tri-Repeat                       0.160             0.248
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The food was excellent.  It is a little too sweet but not too sweet, but not too sweet.  The cheese was amazing, the potatoes were a little bit salty but not too sweet
+SFT Reward:  0.921
+
+RLHF Sample: They had the pasta and the sauce.  The pasta was very creamy and the sauce was very dry.  I had the pasta and the sauce.  The pasta was very creamy and the sauce
+RLHF Reward: -0.505
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  The staff is friendly, friendly, and friendly.  The staff is friendly, friendly, and friendly.  The staff is friendly, friendly, and friendly.  The staff is friendly, friendly
+SFT Reward:  0.811
+
+RLHF Sample: I love the atmosphere.  I was very excited to see the new Cafe Chi.  The new cafe is great!  The service is friendly and the prices are very reasonable.  They have
+RLHF Reward: 0.931
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  The sushi was very good. The rice was good too. The sushi was very good too. The sushi was very good too. The sushi was very good too. The sushi was very good too.
+SFT Reward:  0.183
+
+RLHF Sample: The sushi is very fresh and very clean, and the sushi is clean.  The sushi is very fresh and very clean.  The sushi is very fresh and very clean.  The sushi is
+RLHF Reward: 0.175
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nYou'll be eating up the food and service here! \n\nThe food was very good, the prices were very good, the service was great. The food was good
+SFT Reward:  0.896
+
+RLHF Sample: We had our dinner in the kitchen on the same night, and were seated at the dining area, just as our table was seated on the same night, and our dinner was the same. The dining
+RLHF Reward: 0.170
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The broth is so delicious and good.  I love the rice noodles, the broth is so good.  I would love to try the Ramen.  The noodles are not too bad,
+SFT Reward:  0.915
+
+RLHF Sample: It was so nice to see the restaurant that they had the new menu.  The staff was friendly and the food was really good.  The food is very good and the food is really good.
+RLHF Reward: 0.938

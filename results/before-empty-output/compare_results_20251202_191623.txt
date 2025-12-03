@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.592             0.663
+Std Reward                       0.427             0.369
+Distinct-1                       0.138             0.147
+Distinct-2                       0.436             0.478
+Tri-Repeat                       0.094             0.125
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  I was pleasantly surprised that the staff was friendly, and I was very impressed.  The pasta was good, but the price was far too high.  The food was good, but the taste was
+SFT Reward:  0.130
+
+RLHF Sample: \n\nThe food was great.  They were very friendly and attentive.  They had the best prices in the entire world.  They had the best prices in the entire world.
+RLHF Reward: 0.720
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  \n\nI've had a great time here and it's just my way here.\n\nI've been here since last week and the service was outstanding.\n\n
+SFT Reward:  0.902
+
+RLHF Sample: I will never forget the wonderful staff, the employees, and the people that have been there for so long.  I will never forget the great staff, the employees, and the people that
+RLHF Reward: 0.717
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  The place is great, so I'm not sure what the prices are for it, but it's good for a great place to eat.  I'm sure they're going to have some great
+SFT Reward:  0.261
+
+RLHF Sample: We ordered the sushi because we felt like we were being treated like the locals.  The sushi was delicious and we were glad we were able to have a better experience.  They are always good
+RLHF Reward: 0.284
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  I went here for a family dinner and had a great time with my family.  I had a great time with my husband and I had a great time with my family.  I also had
+SFT Reward:  0.703
+
+RLHF Sample: I would like to thank everyone who has been here for their help and support. It is an honor to be able to share this wonderful place with everyone. It is a special occasion for everyone to come
+RLHF Reward: 0.969
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  I was looking for something that would not be eaten in a ramen restaurant.  I had a great time with the hostess, she was very friendly and attentive.  I was very excited
+SFT Reward:  0.929
+
+RLHF Sample: I've had a few other ramen stores in the past, and I've always been impressed with the quality of their products. I've been impressed with their quality of the food and their service.
+RLHF Reward: 0.915

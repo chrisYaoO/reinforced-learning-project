@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.409             0.656
+Std Reward                       0.552             0.348
+Distinct-1                       0.140             0.146
+Distinct-2                       0.409             0.428
+Tri-Repeat                       0.173             0.173
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  \n\nI have to admit, I've had a couple of requests for a pasta dish that has become so popular. The first one was the pasta from the very beginning. I ordered the
+SFT Reward:  0.735
+
+RLHF Sample: They are so fresh and the texture is so good!  The pasta is perfect to serve with a fresh and tender flavor.  They are also very easy to prepare and have a great flavor.
+RLHF Reward: 0.948
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  I was there just a few weeks ago for lunch and the staff were friendly. The server was friendly and the food was great. I had the option of a small bagel, which I was happy
+SFT Reward:  0.957
+
+RLHF Sample: They are very friendly and the staff is friendly.    The staff is friendly and the staff is friendly.   The staff is friendly and the staff is friendly.
+RLHF Reward: 0.603
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  The staff is great. The food is good, the service is friendly. The service is very good. The staff is very nice. I wish I could say that I'm not a fan of sushi
+SFT Reward:  0.225
+
+RLHF Sample: I always love the spicy flavor and the deep, creamy flavor. I also like the slow and slow rolls and the thick and thin crust. They are a bit pricey but they have the flavor of a
+RLHF Reward: 0.291
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  We had the shrimp and shrimp and shrimp.  We had the shrimp and shrimp.  We had the shrimp and shrimp.  We had the shrimp and shrimp.  We had the shrimp and
+SFT Reward:  0.478
+
+RLHF Sample: I went to this place to find out that the staff was very friendly, and that the service was excellent. I had to ask if they were happy with the service. The food was very good,
+RLHF Reward: 0.951
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  I ordered the steamed pork bbao, which is a little bit spicy and has a nice flavor.  It was really good, and the noodles were really good.  The noodles were
+SFT Reward:  0.906
+
+RLHF Sample: I've had the wonderful experience of my first visit to the mall. The service and the service were outstanding. The price was good for the quality. I'm sure many of the reviews have been wrong
+RLHF Reward: 0.954

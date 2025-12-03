@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.435             0.673
+Std Reward                       0.600             0.422
+Distinct-1                       0.142             0.143
+Distinct-2                       0.438             0.407
+Tri-Repeat                       0.145             0.236
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The staff was friendly and helpful. I always try to find good flavors in the restaurant but it was just so good.\n\nThe pasta was good. It was very easy to make and
+SFT Reward:  0.940
+
+RLHF Sample: 
+RLHF Reward: -0.700
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  
+SFT Reward:  -0.700
+
+RLHF Sample: The place is very friendly and has a great selection of drinks. The food is ok and the service is great. The prices are very reasonable. The atmosphere is very friendly and the service is great.
+RLHF Reward: 0.924
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  I had the sushi in the middle of the night and the sushi was good. I had the sushi in the middle of the night and the sushi was good. I had the sushi in the middle of
+SFT Reward:  0.216
+
+RLHF Sample: The sushi was very clean and the sushi was clean. The service was great, the food was very clean. The food was very clean. The sushi was very clean. The food was very clean.
+RLHF Reward: 0.326
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nMy husband and I were seated in the kitchen and the waiter came in and said hello. I had the order ready and I was ready. He said hello and I was ready to
+SFT Reward:  0.761
+
+RLHF Sample: The chef was really friendly and helpful, giving us some of the best service we've ever had.  We ordered the pizza from the server, and the service was fantastic.  They also have
+RLHF Reward: 0.945
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The service is friendly and the food is great.  I had the pork chops and the komchos.  I am a vegetarian.  The broth was pretty good and the broth was very
+SFT Reward:  0.918
+
+RLHF Sample: \nI think the broth was just the perfect complement to what I had been craving for a long time. The broth was really good, and I really love how the broth is prepared.\n
+RLHF Reward: 0.935

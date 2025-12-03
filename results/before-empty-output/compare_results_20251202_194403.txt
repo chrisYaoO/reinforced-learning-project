@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.477             0.613
+Std Reward                       0.434             0.404
+Distinct-1                       0.154             0.156
+Distinct-2                       0.445             0.460
+Tri-Repeat                       0.136             0.131
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The pasta was so good, I had to order it myself.  The pasta was so good, I had to order it myself.  The pasta was so good, I had to order it
+SFT Reward:  0.461
+
+RLHF Sample: I went to this restaurant a couple of times a week to get the food and the server was a nice guy who would take us to the restaurant to get the pasta.  The waiter was friendly
+RLHF Reward: 0.926
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  It is a good place to start.  \n\nWe are in town, so I am not sure why the staff was there.
+SFT Reward:  0.749
+
+RLHF Sample: The food was excellent, and the atmosphere was great.  I wish the staff were more comfortable and have more fun with this place than I do with this place.  I have to say,
+RLHF Reward: 0.944
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  The food was fantastic.  The staff is friendly and knowledgeable.  It is a good place to eat a few times a week.  The service is good.  I can't wait to go
+SFT Reward:  0.256
+
+RLHF Sample: I've been here for about a year now and it's been a while since I've been here.  I've been here for about a year now and it's been a while since I
+RLHF Reward: 0.516
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  I always try to find a place to stay, but it's not always that easy.  You don't have to find a place to stay, but the location is a perfect place for a
+SFT Reward:  0.489
+
+RLHF Sample: We've had a couple of great experiences here.  The first time we came here, we went to the bar and the other time we got a beer, we sat down with a couple of
+RLHF Reward: 0.909
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  I ordered the ramen because it was so tasty and the sauce was so good.  I ordered the chicken soup because it was so flavorful and the sauce was so flavorful.  I ordered the
+SFT Reward:  0.759
+
+RLHF Sample: I was in Phoenix for a Saturday lunch and I was so impressed with the quality of food I had to eat at home.  I am a huge fan of the old-fashioned Italian-style Italian
+RLHF Reward: 0.950

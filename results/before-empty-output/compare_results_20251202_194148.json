@@ -1,0 +1,788 @@
+{
+  "sft_stats": {
+    "mean_reward": 0.3904760479927063,
+    "std_reward": 0.5162326097488403,
+    "distinct_1": 0.14086021505376345,
+    "distinct_2": 0.4375690607734807,
+    "tri_repeat": 0.125
+  },
+  "rlhf_stats": {
+    "mean_reward": 0.4927993416786194,
+    "std_reward": 0.41525912284851074,
+    "distinct_1": 0.1786743515850144,
+    "distinct_2": 0.5048625792811839,
+    "tri_repeat": 0.08300738809213386
+  },
+  "prompts": [
+    "Write a cheerful and enthusiastic review about how delicious the pasta dishes were.",
+    "Give a positive one-sentence comment praising the friendly service at the café.",
+    "Write a short energetic review about the fresh sushi you enjoyed today.",
+    "Write a warm and heartwarming review about your cozy family dinner.",
+    "Write a positive review celebrating the flavorful ramen and amazing broth.",
+    "Write a happy and uplifting review about the refreshing smoothie you ordered.",
+    "Write a brief positive praise for the polite waiter and excellent customer service.",
+    "Write an encouraging review about your great experience at a newly opened brunch spot.",
+    "Write a harsh complaint about the slow service and rude staff at the restaurant.",
+    "Give a strong negative review about the burnt pizza and awful seasoning.",
+    "Write a one-sentence complaint about the cold food and long waiting time.",
+    "Write a critical review describing the dirty restroom and poor hygiene conditions.",
+    "Write a disappointed review about the bland curry and flavorless soup.",
+    "Write a negative comment about the overpriced dishes and terrible coffee.",
+    "Write a harsh review criticizing the soggy fries and oily dishes.",
+    "Write a complaint about the chaotic management and unprofessional staff."
+  ],
+  "per_prompt": [
+    {
+      "prompt": "Write a cheerful and enthusiastic review about how delicious the pasta dishes were.",
+      "sft_samples": [
+        {
+          "text": "They were super tasty, but I was disappointed when they told me that they would be giving away 10% off the food they were giving away.  They were also very generous and I was so",
+          "reward": 0.5332322716712952
+        },
+        {
+          "text": "I will never again go back to this place again.   I wish I could have been a little happier.  The pasta is just amazing.  I really enjoy the flavor of the food",
+          "reward": 0.7261626124382019
+        },
+        {
+          "text": "The pasta was very good, but was not as good as I expected.  I have tried several different types of pasta dishes, but none of them are perfect.  The bread is not crispy",
+          "reward": -0.41931235790252686
+        },
+        {
+          "text": "The pasta was delicious, but the dish was very bland.  The sauce was cold and it was really cold.  The pasta was good but the sauce was not as good as the pasta.",
+          "reward": -0.4966133236885071
+        },
+        {
+          "text": "I ordered the pasta and the sauce.  The pasta was great and the sauce was delicious.  The cheese was tasty.  The pasta was good.  The sauce was delicious.  The",
+          "reward": 0.7995753884315491
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "They were great and tasty.  The food was excellent.  The prices were reasonable, but the food was not perfect.  The prices were high.  The price was reasonable.  The",
+          "reward": 0.35825586318969727
+        },
+        {
+          "text": "I came here because I wanted to try something new with a little girl.  I love being a vegetarian and I love being a vegetarian.  My husband and I decided to try something new with a",
+          "reward": 0.8145474195480347
+        },
+        {
+          "text": "I went to visit the local Italian restaurant in the area of Bellagio to find out that I had an Italian restaurant in town.  I went to the Italian restaurant in Bellagio",
+          "reward": 0.47262299060821533
+        },
+        {
+          "text": "\\n\\nThe place is great, but the staff is hard at work. \\n\\nThe service is always nice and the food is always good.\\n\\nThe food is",
+          "reward": 0.87253737449646
+        },
+        {
+          "text": "They are usually good and I am sure that you will not be disappointed in my opinion of their food.   I am a fan of the Italian food and I have been to some of the",
+          "reward": 0.9512023329734802
+        }
+      ]
+    },
+    {
+      "prompt": "Give a positive one-sentence comment praising the friendly service at the café.",
+      "sft_samples": [
+        {
+          "text": "We have had to wait a few days to get a drink, but we had to wait an hour for the order.  I can't wait to see the staff and the staff here.",
+          "reward": -0.45644867420196533
+        },
+        {
+          "text": "I have been here for the past few months and have been a frequent guest of the restaurant for quite some time. I have been to this place many times and it's always a great place to go",
+          "reward": 0.9487313628196716
+        },
+        {
+          "text": "I have a great time and it is a great place for my family.  It is also an excellent place for my friends and family.  \\n\\nThe cafe is located in",
+          "reward": 0.8925859332084656
+        },
+        {
+          "text": "\\n\\nI'm so glad the staff is friendly and I can't wait to get there.\\n\\nThe food was delicious and the service was excellent.  I'm really glad",
+          "reward": 0.9143139719963074
+        },
+        {
+          "text": "\\n\\nThe staff are friendly and helpful.   \\n\\nThe staff are friendly and helpful.    \\n\\nThe staff are friendly and helpful.",
+          "reward": 0.41866159439086914
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "The staff were friendly and helpful.  I am very impressed with the staff and the professionalism of the staff.  I wish them a great time at the restaurant and I am very happy to have",
+          "reward": 0.9290714859962463
+        },
+        {
+          "text": "",
+          "reward": -0.034011781215667725
+        },
+        {
+          "text": "The staff are friendly and friendly and have been a great customer. We have the perfect time to start the night, but you have to be aware of all the people you are in the room, and",
+          "reward": 0.9691888689994812
+        },
+        {
+          "text": "\\nI would rather have the opportunity to say hello to the cafe staff.\\nI would like to thank the staff and the staff for their support during the event.\\nI wish I",
+          "reward": 0.19931194186210632
+        },
+        {
+          "text": "I've been to the cafe a few times and I'm not a fan of the service, but I'm not sure I've ever had a good time at the cafe and it's sad",
+          "reward": -0.4298293888568878
+        }
+      ]
+    },
+    {
+      "prompt": "Write a short energetic review about the fresh sushi you enjoyed today.",
+      "sft_samples": [
+        {
+          "text": "\\n\\nThe place is a bit crowded, but if you're looking for a place to go, you're going to have to take some time to get it done.  We ordered a",
+          "reward": 0.3622892200946808
+        },
+        {
+          "text": "\\n\\nWe started out by trying the Sushi Hut, which was a little over a week ago and the sushi was good. I was not impressed with the selection and the service was amazing",
+          "reward": 0.2906809449195862
+        },
+        {
+          "text": "The staff was friendly and the food was good.   The food was good but not great.  The fish was very oily and had no flavor whatsoever.  The prices were great.",
+          "reward": 0.23199234902858734
+        },
+        {
+          "text": "The sushi was pretty good, and I don't like the fresh sushi I ordered.  I ordered the hot shakomura.  They had some hot shakomura.  I",
+          "reward": 0.34753698110580444
+        },
+        {
+          "text": "The sushi is really good, but the staff is also very nice. The food is good, but the service is really slow.  The prices are too high, but the menu is good.",
+          "reward": 0.6829388737678528
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "",
+          "reward": 0.7160862684249878
+        },
+        {
+          "text": "I have been here for over 2 years now, and the only thing I can say is that I was looking forward to this place for a while.  I am a fan of the local",
+          "reward": 0.6057876348495483
+        },
+        {
+          "text": "I had the opportunity to talk to one of the great sushi chefs I have never met. I was with a sushi chef who was working in the area and she was very helpful. She was very helpful",
+          "reward": 0.2743556499481201
+        },
+        {
+          "text": "I have been here a few times before.  I am a frequent frequent traveler to the area.  It is always a good time to check in and have a good time.  I have",
+          "reward": 0.26474493741989136
+        },
+        {
+          "text": "You can buy from the local sushi joint here.  You can order from the sushi joint here.  The restaurant has a small pool of pool seats that are comfortable for the naked eye.",
+          "reward": 0.28898969292640686
+        }
+      ]
+    },
+    {
+      "prompt": "Write a warm and heartwarming review about your cozy family dinner.",
+      "sft_samples": [
+        {
+          "text": "\\n\\nI'm a fan of the food, but I love the way you cook it.\\n\\nI don't like the food and the ingredients, but it's nice.",
+          "reward": 0.9100174307823181
+        },
+        {
+          "text": "The decor is very clean and very clean.   The food is very fresh and it is very tasty.   The service is very friendly and very friendly.",
+          "reward": 0.8938754796981812
+        },
+        {
+          "text": "\\n\\nWe took our first bite to order and our second was a hot and spicy, spicy red onion.  The red onion was tender and juicy and was seasoned and moist.  We",
+          "reward": 0.9359775185585022
+        },
+        {
+          "text": "I was so excited to try this place, so I can't wait to try it again.  I know I have to say that it's a good place to go, but it's not",
+          "reward": -0.2766703963279724
+        },
+        {
+          "text": "This is a place to enjoy a family dinner. This is the only place you can enjoy a family dinner. This is the only place you can enjoy a family dinner. This is the only place you",
+          "reward": -0.5491145253181458
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I love the decor and the decor, the kitchen is cozy, and the family is friendly.  I love the atmosphere and the atmosphere are great.  If you are looking for a cozy place to",
+          "reward": 0.9142463207244873
+        },
+        {
+          "text": "\\n\\nI have been here since I was a little kid.  It's been a long time since I went to college.  My father and I have been here since I was a",
+          "reward": 0.6453644037246704
+        },
+        {
+          "text": "I've been to the French restaurant at least three times before, so I've always been a fan of the French restaurant.  I've had my wife and I have been to the restaurant",
+          "reward": 0.9035748243331909
+        },
+        {
+          "text": "I got a fantastic idea for a couple of years ago when I was in college, and when I was in college, I was really excited for the chance to join in my family's celebration of",
+          "reward": 0.8836482167243958
+        },
+        {
+          "text": "I've been here for a few years now and I've been to my friend's place in the city. I've been here three times and my family has been here twice.  I've always",
+          "reward": 0.882030725479126
+        }
+      ]
+    },
+    {
+      "prompt": "Write a positive review celebrating the flavorful ramen and amazing broth.",
+      "sft_samples": [
+        {
+          "text": "The noodles are amazing!  They have a great flavor and the soup is so fresh.  The prices are not great, but they are not cheap.  They have the right amount of noodles",
+          "reward": 0.9354742765426636
+        },
+        {
+          "text": "The food is great and the atmosphere is clean.  The service is friendly and attentive.  The food is good but it is not as good as the ramen.  The noodles are",
+          "reward": 0.8777704834938049
+        },
+        {
+          "text": "I ordered the ramen from the menu. I had the beef ramen and it was tasty. The chicken was good, but the broth was not as good as I'd expect. The chicken was",
+          "reward": -0.37983500957489014
+        },
+        {
+          "text": "",
+          "reward": -0.034011781215667725
+        },
+        {
+          "text": "The service is a bit slow. I'm not a fan of ramen, but the broth is good.  I would definitely recommend this place.  It's a bit slow, but the broth",
+          "reward": 0.6615188717842102
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "\\n\\nI can't thank you enough for your amazing service and service. I am so glad you are here. I have been here a couple times and have never had the opportunity to speak",
+          "reward": 0.9249584078788757
+        },
+        {
+          "text": "It's a great place to go when you're craving for something new to come.  It's great to have a good time, and I can't wait to try it again.  I",
+          "reward": 0.9339922666549683
+        },
+        {
+          "text": "I have been to the Ramen Club since 1998 and have been to several other restaurants in the area.  I have never been to Ramen Club and am very happy with the service and the",
+          "reward": 0.8946545124053955
+        },
+        {
+          "text": "\\nThe place is great and I am so glad to be back.  I am so glad I got the chance to try out the Ramen here in Phoenix.  The Ramen is great",
+          "reward": 0.8796776533126831
+        },
+        {
+          "text": "The service is great, but the food is terrible, and the prices are horrible.  I'm a vegetarian and I've been to a Ramen shop in Phoenix and it was pretty awesome.",
+          "reward": -0.4371952414512634
+        }
+      ]
+    },
+    {
+      "prompt": "Write a happy and uplifting review about the refreshing smoothie you ordered.",
+      "sft_samples": [
+        {
+          "text": "The service is amazing and the food is wonderful. The service is very friendly and it's a great place to eat. The service is good and the food is awesome. The food is delicious. The",
+          "reward": 0.8314016461372375
+        },
+        {
+          "text": "The service was great.  The food was very good.  The decor was very nice.  The prices were high.   The service was great.  The service was great.",
+          "reward": 0.7383219599723816
+        },
+        {
+          "text": "I'm not sure if this is worth the wait for this place.  I'm not sure if this is worth the wait for this place.  I'm not sure if this is worth the wait",
+          "reward": -0.8863350749015808
+        },
+        {
+          "text": "\\n\\nI was given the chocolate chip sauce and a little sour cream.  They also had the option of using the whipped cream for their cream topping.  I had a very strong feeling",
+          "reward": 0.9155932664871216
+        },
+        {
+          "text": "I ordered the ice cream cone because I love the flavor. It was really nice, the ice cream cone was delicious. The ice cream cone was a nice touch of a charm. I ordered the ice",
+          "reward": 0.8011561036109924
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I'm a big fan of the food and I'm always impressed with the quality of the service I get from the folks at the restaurant. I've been here about 30 years, and I have a",
+          "reward": 0.9561521410942078
+        },
+        {
+          "text": "I was so excited to have it here in Phoenix, AZ.  I had a great time here on Saturday evening, and had the chance to get a quick meal at the bar.  I had",
+          "reward": 0.9494326710700989
+        },
+        {
+          "text": "The food was delicious, and the service was great.  I've been to the restaurant several times before and have always been very attentive to the customer.  The place is open from 7:00",
+          "reward": 0.940160870552063
+        },
+        {
+          "text": "I've been here in the past two years with a friend and I have been to my best friend's place of business, and have had the experience of visiting the place.  I've been",
+          "reward": 0.9358624219894409
+        },
+        {
+          "text": "It's been a long time since I have been here. It's been over a year since I've been here. I've always been a fan of the Italian-American, Italian-American food",
+          "reward": 0.8710956573486328
+        }
+      ]
+    },
+    {
+      "prompt": "Write a brief positive praise for the polite waiter and excellent customer service.",
+      "sft_samples": [
+        {
+          "text": "The staff is friendly, but I am a bit biased. I am also a little wary of the service. The service is really good. The food is good, but not good. I really don",
+          "reward": -0.3224942088127136
+        },
+        {
+          "text": "It is a very popular restaurant and the service is great.  The food is very good but the food is very bad.  The waiter is rude and the service is very bad.  The",
+          "reward": -0.553831160068512
+        },
+        {
+          "text": "The service was nice and attentive, and the server was very friendly and attentive.  The food was good but not very good.  The food was very good but not very good.",
+          "reward": -0.11011558771133423
+        },
+        {
+          "text": "I'm not sure why I'd like to see this place open again.  I think it's the best restaurant in the world.  I'm not sure why I'd like to see this place",
+          "reward": 0.04685697332024574
+        },
+        {
+          "text": "I would highly recommend this place. The staff is very friendly. The service is very friendly. I have been to many other restaurants with good food and service. I would recommend this place to anyone who",
+          "reward": 0.9314253926277161
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "",
+          "reward": -0.034011781215667725
+        },
+        {
+          "text": "I am sure many of you are familiar with the hotel chain but I was not a member of that company until recently and I was the owner of the hotel.  My husband and I were born in",
+          "reward": 0.07645782083272934
+        },
+        {
+          "text": "The place is very friendly and I would recommend it to anyone who is in a hurry to get out of town.   I am a regular at the restaurant and I know there are a lot",
+          "reward": 0.9611498713493347
+        },
+        {
+          "text": "\\nMy friend and I have been here several times in the past and have never had a bad experience in our area.",
+          "reward": 0.8718428611755371
+        },
+        {
+          "text": "The restaurant has been in town since 1885 and has since been a staple of our local sports clubs.  The food is exceptional and the service is excellent.  If you're looking for a quick",
+          "reward": 0.9526515603065491
+        }
+      ]
+    },
+    {
+      "prompt": "Write an encouraging review about your great experience at a newly opened brunch spot.",
+      "sft_samples": [
+        {
+          "text": "I'm glad you came here to try this place!  It's a very different place than I'd ever been before.  There's no word on the price, but the food is",
+          "reward": 0.3064579665660858
+        },
+        {
+          "text": "The menu is great and the food is great.  The food is good and the food is great.  It is a bit pricey for a place to go.  But, I am not",
+          "reward": 0.21448127925395966
+        },
+        {
+          "text": "The food is very good. The service is always great. The food is also good.  The server is very attentive.  He is very friendly and helpful.  The server is very friendly and",
+          "reward": 0.11702855676412582
+        },
+        {
+          "text": "The place has a great selection of food and service.  The bar is great and the service is great.  The food is good.  The food is good.  The prices are pretty",
+          "reward": 0.1784985363483429
+        },
+        {
+          "text": "",
+          "reward": 0.7160862684249878
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I am a bit of a fan of the “The Great American Grill and I have a few other friends that I would like to see in the area.     I",
+          "reward": 0.2693067193031311
+        },
+        {
+          "text": "",
+          "reward": 0.7160862684249878
+        },
+        {
+          "text": "We are very happy to share a photo with you to share with you the best experiences we have had in my life.  You can watch the video below.  The bar is just so awesome",
+          "reward": 0.2710109353065491
+        },
+        {
+          "text": "You can expect a great breakfast menu, but for the price of a breakfast, a better option is to just give it a try.  If you're looking for a better option, you can",
+          "reward": 0.8857095837593079
+        },
+        {
+          "text": "I'm very happy to say that I'm very impressed with my family's amazing brunch experience.  I've been to New York City twice before and I've always loved this place.  I've",
+          "reward": 0.24874034523963928
+        }
+      ]
+    },
+    {
+      "prompt": "Write a harsh complaint about the slow service and rude staff at the restaurant.",
+      "sft_samples": [
+        {
+          "text": "The staff is very rude, very rude.  The service is great.  The food is amazing.  The service is awful.  The staff is friendly.  They are very friendly.",
+          "reward": 0.8250700831413269
+        },
+        {
+          "text": "They are a great place to get your food and drinks before heading to a local bar.  The service is very rude and the staff is very nice.  I will try to try to find",
+          "reward": 0.547256350517273
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "They were rude and rude.  The restaurant is clean and the staff is very friendly.  The service is good.  They are very friendly.  They are very friendly.  They are",
+          "reward": -0.49061596393585205
+        },
+        {
+          "text": "We've been here for years and the service is very rude.  We have been here for years and the service is very rude.  We have been here for years and the service is very",
+          "reward": 0.5018835663795471
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "The owner of the restaurant is also a former employee of the restaurant.  The restaurant has a large dining area and is located in the heart of the city.  The restaurant is located in the",
+          "reward": -0.334768146276474
+        },
+        {
+          "text": "We are now facing an even bigger problem, our food is being served in a more slow, and tasteless way.  If you are looking for a great restaurant, go here.  We",
+          "reward": 0.9283140301704407
+        },
+        {
+          "text": "I called the manager to see if there was a problem with the food. I told him to get the meat from the restaurant and get the rest. \\n\\nThe manager apologized and offered to",
+          "reward": 0.9353358149528503
+        },
+        {
+          "text": "I am from San Francisco, California and have been working in the food and entertainment industry for a long time. I have been to San Francisco twice. I have been to the restaurant twice, once,",
+          "reward": -0.21514421701431274
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        }
+      ]
+    },
+    {
+      "prompt": "Give a strong negative review about the burnt pizza and awful seasoning.",
+      "sft_samples": [
+        {
+          "text": "\\n\\nThe pizza is horrible, the seasoning is terrible and the sauce is awful.  The crust is dry and the sauce is not good.  I went here to get the pizza and",
+          "reward": 0.8791151642799377
+        },
+        {
+          "text": "I've been a pizza expert since I was a kid, and I've never had a problem with the sauce.  The pizza is really good, but the sauce is so thick, the sauce",
+          "reward": -0.15918849408626556
+        },
+        {
+          "text": "The food was ok. The sauce and the toppings were terrible. The food was very bland. I will try again. The pizza was horrible. I will try again. The pizza was terrible.",
+          "reward": 0.7816182971000671
+        },
+        {
+          "text": "I was very disappointed. I was also disappointed that the meat was not fresh. The crust was thin, the sauce was thin, and the sauce was not fresh. I was very disappointed with the sauce",
+          "reward": 0.8620338439941406
+        },
+        {
+          "text": "\\n\\nI'm not a pizza fan and I'm a pizza fan.  I have never had pizza but I have never had a pizza that was good.  \\n\\n",
+          "reward": 0.8076715469360352
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I've been to the pizza joints for years, and I've been to the pizza joints for the past few years. The quality of the pizza is horrendous, the quality of the pizza is horrible,",
+          "reward": 0.7260474562644958
+        },
+        {
+          "text": "\\n\\nI was in a restaurant in the middle of nowhere, and I walked into the restaurant and saw the burnt pizza. I asked the owner if I would be willing to give up pizza",
+          "reward": 0.9420385360717773
+        },
+        {
+          "text": "The place is very clean, and the only thing that I can say is that this place is horrible and the pizza is awful.  The only thing that I can say is that this place is",
+          "reward": 0.7258251309394836
+        },
+        {
+          "text": "\\n\\nI was so shocked by the terrible pizza I had to make it up to get a pizza. I was so disgusted with the quality of pizza I had to pay $30 for a",
+          "reward": 0.8913182616233826
+        },
+        {
+          "text": "I went to the pizzeria to check for the pizza, but it was nowhere near the exact location. I called to ask for a location and I was told they would not be able to open the",
+          "reward": 0.9650865197181702
+        }
+      ]
+    },
+    {
+      "prompt": "Write a one-sentence complaint about the cold food and long waiting time.",
+      "sft_samples": [
+        {
+          "text": "I was told it was cold, and there was no food on the table. \\n\\nThe food was ok, but I couldn't get my order. They even gave me a free pizza",
+          "reward": 0.935935914516449
+        },
+        {
+          "text": "We asked for a place to sit at the bar to get the food.  We had a good meal and had a good drink.   The waitstaff was friendly and friendly.",
+          "reward": -0.47035208344459534
+        },
+        {
+          "text": "I was looking forward to the day I saw a new restaurant in the area.  The location was so nice and the food was delicious.  My husband and I got our order of two glasses",
+          "reward": -0.4270292818546295
+        },
+        {
+          "text": "We ordered the chicken with the eggplant and I had the eggplant with the eggplant.  The chicken was the best I've had and the eggplant was the best I've had.",
+          "reward": -0.5246827602386475
+        },
+        {
+          "text": "I asked for a burger at the end of the day.  It was the same as the burger I ordered at the beginning of the night.  The burger was cold and the waiter had to",
+          "reward": 0.9356356859207153
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I have been here three times before and this time it was the cold food. I have never been here before. I have been here twice. My mother and I have been here twice. My father",
+          "reward": 0.7942957282066345
+        },
+        {
+          "text": "I was in the car for lunch at 7:30am when I noticed that the car had been moved to the wrong place.    I thought I was going to have to",
+          "reward": 0.9095147252082825
+        },
+        {
+          "text": "I went to this restaurant for lunch.  I was in the area of the restaurant and I was there for lunch.  The owner was there to greet me and my family and I were",
+          "reward": -0.3056666851043701
+        },
+        {
+          "text": "I have been in the same area for over 20 years and it is not my fault that the food is cold in my home town.  I have been a waitress for 15 years and I have",
+          "reward": -0.1879916936159134
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        }
+      ]
+    },
+    {
+      "prompt": "Write a critical review describing the dirty restroom and poor hygiene conditions.",
+      "sft_samples": [
+        {
+          "text": "\\n\\nThe bathrooms are clean, there are no broken glass on the bathroom floor. \\n\\nThe bathrooms are filthy, there are no broken glass on the bathroom floor. \\n",
+          "reward": 0.6002932190895081
+        },
+        {
+          "text": "The bathroom is filthy and the bathroom is filthy.  The restroom is dirty, and the bathroom is dirty.  The bathroom is dirty, and the bathroom is dirty.  The bathroom is dirty",
+          "reward": 0.7555355429649353
+        },
+        {
+          "text": "The restroom was clean, clean, and clean. \\n\\nWe are not going to give you an explanation as to why this is not the place to go. \\n\\nThere is",
+          "reward": 0.898368775844574
+        },
+        {
+          "text": "The bathroom is dirty, the food is dirty, the bathroom is not clean. I had a friend at the bar and he said they had no idea what the food was. I have never been to",
+          "reward": 1.056498646736145
+        },
+        {
+          "text": "The bathroom is dirty, and there are no showers available.  The bathroom is dirty, and there are no showers available.  I have a friend in my life who went there to see this place",
+          "reward": 0.908178448677063
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "The bathroom was filthy, dirty and dirty.  The bathroom was clean and dirty.  The bathroom was dirty and dirty.  The bathroom was dirty and dirty.  The bathroom was dirty and",
+          "reward": 0.6381500959396362
+        },
+        {
+          "text": "The staff at the clinic are also a huge embarrassment to us and the clinic is a disgrace.  The clinic is clean, and we are appalled that a clinic that has been given a new name",
+          "reward": 0.9287877082824707
+        }
+      ]
+    },
+    {
+      "prompt": "Write a disappointed review about the bland curry and flavorless soup.",
+      "sft_samples": [
+        {
+          "text": "I was so disappointed.  I had to go back to this place to get the curry.  I got the curry.  I am a vegetarian.  The curry was spicy and I liked",
+          "reward": 0.2538560628890991
+        },
+        {
+          "text": "I've been to this place twice and it's been so disappointing.  The flavors are good, but not good.  The rice is good, but the broth is just not flavorful.",
+          "reward": 0.2521105110645294
+        },
+        {
+          "text": "The food was not very good.    The food was not very good.   The sauce was very bland.   The price was very cheap.    The rice",
+          "reward": 0.05512937530875206
+        },
+        {
+          "text": "The soup was so bland and had a taste of the worst quality I've ever experienced.  The soup was too bad for my taste buds.  The soup was not quite what they wanted,",
+          "reward": 0.2185852825641632
+        },
+        {
+          "text": "The curry was bland and the curry was not flavorful enough for me.  The curry was dry and the curry was not fresh enough for me.  I had the curry and it was not fresh",
+          "reward": 0.10029471665620804
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I was a little skeptical, but I was really impressed with the quality of the food.  The curry was bland and I had to admit I was disappointed with the quality of the food.",
+          "reward": 0.329280823469162
+        },
+        {
+          "text": "It was my first time visiting Vegas and I was disappointed with the quality of the food.  I was disappointed with the quality of the food.  The food was the worst I have had in",
+          "reward": 0.12704944610595703
+        },
+        {
+          "text": "It's a horrible experience.  The food is bland and it's not worth it.  It's the only place that can stand the taste of the curry and the soup are empty.",
+          "reward": 0.2642078101634979
+        },
+        {
+          "text": "I have been to this place twice since I was a kid and this place is so bad.  I will never again be able to return to this place again.  I will never again be able",
+          "reward": 0.19025105237960815
+        },
+        {
+          "text": "",
+          "reward": 0.7160862684249878
+        }
+      ]
+    },
+    {
+      "prompt": "Write a negative comment about the overpriced dishes and terrible coffee.",
+      "sft_samples": [
+        {
+          "text": "I've tried several different options here.  The first one is the sashimi, the second is the sashimi.  I ordered the sashimi.  The sashimi",
+          "reward": -0.23715822398662567
+        },
+        {
+          "text": "I have been here for a few years and have never been disappointed.  I was a little disappointed with the price and the service.  I have had to eat the tea at the bar and it",
+          "reward": 0.7624691128730774
+        },
+        {
+          "text": "I tried the French fries on the first try, and the rest of the dishes were horrible.  The french fries were terrible.  I tried the French fries on the first try, and the rest",
+          "reward": 0.6842644810676575
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "We ordered a couple of glasses of water and then ordered the coffee and the coffee, the only thing that was not good was the coffee.  I'm not a coffee lover, I don't",
+          "reward": 0.9445154666900635
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        }
+      ]
+    },
+    {
+      "prompt": "Write a harsh review criticizing the soggy fries and oily dishes.",
+      "sft_samples": [
+        {
+          "text": "",
+          "reward": 0.7160862684249878
+        },
+        {
+          "text": "\\n\\nThis place is not a place to go for breakfast or lunch, but you can go with the family. \\n\\nThis place is not a place to go for lunch or",
+          "reward": 0.17761293053627014
+        },
+        {
+          "text": "The fries are not the best I have had, they are so dry and so oily that they are not even close to the dish.  I have been to many restaurants and they are not my",
+          "reward": 0.26081833243370056
+        },
+        {
+          "text": "I've never been a fan of the spicy fries, but I have never been disappointed by the quality of the fries.  The sauce was the only thing that impressed me most.  The fries",
+          "reward": 0.9418675899505615
+        },
+        {
+          "text": "The fries were too oily.  I was looking for a place to eat on a Saturday night.  I was also looking for a place to eat on a Saturday night.   I had",
+          "reward": 0.04594515636563301
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "I ordered the soggy fries and the oily dishes.  I went back to this restaurant because I was so tired of having to go back to this place to get food.  I have",
+          "reward": 0.25705084204673767
+        },
+        {
+          "text": "It is not the same as being a sushi restaurant with a nice butchered menu, and the staff at the restaurant are very rude and are very disrespectful.  If I was in this place",
+          "reward": 0.28935322165489197
+        },
+        {
+          "text": "\\n\\nI'm sorry, I'm not a fan of the Soggy Burger but I'm glad I'm not. \\n\\nMy girlfriend and I both work in the restaurant",
+          "reward": 0.3545227646827698
+        },
+        {
+          "text": "\\nThe soggy fries were so bad that I can't even remember what they were.  The soggy fries were so bad that I can't even remember what they were.",
+          "reward": -0.06476068496704102
+        },
+        {
+          "text": "I am in a really bad mood here, and this place is one of those places where the best food is served.  I am so sad to see how many people have come here to see",
+          "reward": 0.39260202646255493
+        }
+      ]
+    },
+    {
+      "prompt": "Write a complaint about the chaotic management and unprofessional staff.",
+      "sft_samples": [
+        {
+          "text": "I will never be able to return to this place again. I have never seen a single employee leave this place. This is a business that is not friendly to the people and they have no business.",
+          "reward": 0.9669381976127625
+        },
+        {
+          "text": "We tried to find a way to accommodate the people that came here for dinner, and we were told that they were not to pay our bill, and they said they would not accept our bill and that",
+          "reward": 0.9757171273231506
+        },
+        {
+          "text": "The manager is not the type of person you would expect to be.  He is a nice guy, very nice and very pleasant.  The service is great.  The place is pretty good",
+          "reward": -0.4229448735713959
+        },
+        {
+          "text": "We have seen this before, and the only thing we can say is that we have not seen any complaints about the management of our businesses. We have seen this before, and the only thing we can",
+          "reward": 0.7568248510360718
+        },
+        {
+          "text": "” They don't even have a manager who can help us.  The staff is extremely rude. They don't even have a manager who can help us.  We have had our drinks and",
+          "reward": 0.736838698387146
+        }
+      ],
+      "rlhf_samples": [
+        {
+          "text": "",
+          "reward": 0.07461236417293549
+        },
+        {
+          "text": "\\n\\nI came here to do my due diligence, I was told that there was a problem with the security of the premises. \\n\\nI called to tell them that I needed",
+          "reward": 0.9014922976493835
+        },
+        {
+          "text": "They are the only ones who have been to this point in my life.  I have been here several times in my life, I have never been here before.  I have been there twice",
+          "reward": 0.5446631908416748
+        },
+        {
+          "text": "I have been there before, and I have been here before. I have never been here before, and I have never been here before. I have never been here before. I have never been here",
+          "reward": 0.49967873096466064
+        },
+        {
+          "text": "We are told that they are not going to provide a report of any problems with the employees in the building.\\n\\nI am not aware of any issues with the management or the employees in",
+          "reward": 0.9111281037330627
+        }
+      ]
+    }
+  ]
+}

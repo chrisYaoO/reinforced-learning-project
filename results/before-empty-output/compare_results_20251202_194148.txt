@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.390             0.493
+Std Reward                       0.516             0.415
+Distinct-1                       0.141             0.179
+Distinct-2                       0.438             0.505
+Tri-Repeat                       0.125             0.083
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  They were super tasty, but I was disappointed when they told me that they would be giving away 10% off the food they were giving away.  They were also very generous and I was so
+SFT Reward:  0.533
+
+RLHF Sample: They were great and tasty.  The food was excellent.  The prices were reasonable, but the food was not perfect.  The prices were high.  The price was reasonable.  The
+RLHF Reward: 0.358
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  We have had to wait a few days to get a drink, but we had to wait an hour for the order.  I can't wait to see the staff and the staff here.
+SFT Reward:  -0.456
+
+RLHF Sample: The staff were friendly and helpful.  I am very impressed with the staff and the professionalism of the staff.  I wish them a great time at the restaurant and I am very happy to have
+RLHF Reward: 0.929
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  \n\nThe place is a bit crowded, but if you're looking for a place to go, you're going to have to take some time to get it done.  We ordered a
+SFT Reward:  0.362
+
+RLHF Sample: 
+RLHF Reward: 0.716
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nI'm a fan of the food, but I love the way you cook it.\n\nI don't like the food and the ingredients, but it's nice.
+SFT Reward:  0.910
+
+RLHF Sample: I love the decor and the decor, the kitchen is cozy, and the family is friendly.  I love the atmosphere and the atmosphere are great.  If you are looking for a cozy place to
+RLHF Reward: 0.914
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The noodles are amazing!  They have a great flavor and the soup is so fresh.  The prices are not great, but they are not cheap.  They have the right amount of noodles
+SFT Reward:  0.935
+
+RLHF Sample: \n\nI can't thank you enough for your amazing service and service. I am so glad you are here. I have been here a couple times and have never had the opportunity to speak
+RLHF Reward: 0.925

@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.554             0.513
+Std Reward                       0.459             0.410
+Distinct-1                       0.146             0.156
+Distinct-2                       0.460             0.480
+Tri-Repeat                       0.109             0.129
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  I like the flavors of the sauce but I don't like the taste.  It's too spicy.  I'm not sure if the sauce is good, but I like it.
+SFT Reward:  -0.449
+
+RLHF Sample: \n\nI had the pleasure of visiting the Venetian restaurant in Montreal and seeing a great selection of Italian and Italian dishes.  It was a pleasure to be here, but I have
+RLHF Reward: 0.931
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  I don't know if I am the only one who could have helped and appreciated this place.  I would highly recommend this place.  I have been here for several years and it is the first
+SFT Reward:  0.923
+
+RLHF Sample: The staff is friendly and the food is excellent.  It's a good place to go.  I've been here three times before and I've never had a problem here.  The staff
+RLHF Reward: 0.930
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  
+SFT Reward:  0.716
+
+RLHF Sample: I've been craving sushi for a while now, so I'm not sure if it's the best place to go, but I've always been a fan of sushi, so I've been going
+RLHF Reward: 0.365
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nWe decided to try the Hauschknecht, the place that has been a staple of our family dinner for many years. \n\nThe service was great,
+SFT Reward:  0.901
+
+RLHF Sample: I was there for dinner in late September and I was in town for dinner. I am always there to share a warm and heartwarming story about my family dinner. I am always there to share a
+RLHF Reward: 0.835
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  It's a great way to enjoy the good food and the atmosphere.  I love this place so much.  They have the same service and they have the same menu.   I have
+SFT Reward:  0.884
+
+RLHF Sample: The staff is friendly and the food is delicious.  I am a fan of the Baja and the Baja.  It is so small and I have to admit, it is a very special
+RLHF Reward: 0.940

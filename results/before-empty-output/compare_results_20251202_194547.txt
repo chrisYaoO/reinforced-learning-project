@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.554             0.500
+Std Reward                       0.456             0.463
+Distinct-1                       0.138             0.165
+Distinct-2                       0.428             0.484
+Tri-Repeat                       0.145             0.122
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  \n\nI got the Italian sausage and cheese. They were very good. I ordered the Italian sausage and cheese. I also ordered the eggplant sausage. The eggplant sausage was delicious.
+SFT Reward:  0.832
+
+RLHF Sample: I am a huge fan of Italian cuisine and the great food I have had in my life. It is a great place to go to get a good dinner, but I don't want to go there
+RLHF Reward: 0.967
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  The staff is friendly, friendly, and the atmosphere is friendly. The service is good, but the atmosphere is bad. I know I am an American, but I have to admit, I have been
+SFT Reward:  0.032
+
+RLHF Sample: 
+RLHF Reward: -0.034
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  The sushi is good, but the sushi is not as good.   The sushi is so good that the sushi is so good that the sushi is so good that the sushi is so good that the
+SFT Reward:  0.538
+
+RLHF Sample: 
+RLHF Reward: 0.716
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  I love this place.  I like the atmosphere and the food.  I love the atmosphere and the food.  I love the atmosphere and the food.  I love the atmosphere and the
+SFT Reward:  0.517
+
+RLHF Sample: You know, I've always been a huge fan of the Denny's, but I'm a fan of the Denny's, and the Denny's are the most memorable places in town.
+RLHF Reward: 0.853
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  The broth was good, but it was also very bad.  The broth was too salty and the broth was too spicy.  I am not sure if the broth was okay but the broth was
+SFT Reward:  -0.562
+
+RLHF Sample: I love the selection of ramen that I have been to in the past.  I love the variety of dishes I am eating, and the variety of places I visit.  I love the
+RLHF Reward: 0.864

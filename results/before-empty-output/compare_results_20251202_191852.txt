@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.496             0.672
+Std Reward                       0.482             0.349
+Distinct-1                       0.138             0.163
+Distinct-2                       0.418             0.503
+Tri-Repeat                       0.163             0.084
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  The menu was very good and the flavor was amazing.  The pasta was very good and the flavor was amazing.  The pasta was very good and the flavor was amazing.  The pasta was
+SFT Reward:  0.488
+
+RLHF Sample: The food was excellent, the service was very pleasant, and the food was good.   The food was good.   The staff was friendly and attentive.  The food was very good
+RLHF Reward: 0.769
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  I had a great time in the cafe and I had the opportunity to try the cafe.  I had to wait a bit longer for the menu to come out.  The server was friendly and
+SFT Reward:  0.950
+
+RLHF Sample: \nThe staff is very friendly, and will always be helpful.  The atmosphere is very friendly, and the atmosphere is very friendly.  We will be back soon.  We will be back
+RLHF Reward: 0.759
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  I was happy to get a sample of the crab and sushi and I was happy to get a few samples of the sushi.  I would definitely recommend this place to anyone who is not a fan
+SFT Reward:  0.199
+
+RLHF Sample: \nThe sushi is a huge hit. It is the perfect place for a night of partying, fun, and family fun.  The staff is always friendly and accommodating.  They are always happy
+RLHF Reward: 0.257
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nI always go to places that have a nice feel to them and the food is really good.   I had the traditional Chinese food with rice, the pork, the mushrooms and
+SFT Reward:  0.939
+
+RLHF Sample: We had a great time with the family.  We ordered a large portion of the food and had to be taken to the back of the house for our next visit.  We were told that the
+RLHF Reward: 0.502
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  \n\nThe service is very friendly, the food is friendly and the service is friendly.\n\nI love the service but I've had it here for a while and I'm
+SFT Reward:  0.909
+
+RLHF Sample: The service was great and the atmosphere was fun.  I will never forget the incredible staff and the food. \n\nI will be back!  I will be back!  I will
+RLHF Reward: 0.832

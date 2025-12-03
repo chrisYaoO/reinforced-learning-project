@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.533             0.665
+Std Reward                       0.554             0.436
+Distinct-1                       0.147             0.143
+Distinct-2                       0.451             0.409
+Tri-Repeat                       0.132             0.228
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a cheerful and enthusiastic review about how delicious the pasta dishes were.
+--------------------------------------------------
+SFT Sample:  \n\nThe service was excellent and the prices are reasonable. \n\nThe food was good and the service was friendly. \n\nThe food was good. The prices were
+SFT Reward:  0.873
+
+RLHF Sample: They were very nice and very professional.  They had the service very professional, but they didn't even tell us how much they had to pay for a meal.  When I asked the manager if
+RLHF Reward: 0.888
+
+Prompt: Give a positive one-sentence comment praising the friendly service at the café.
+--------------------------------------------------
+SFT Sample:  \n\nThe service is excellent.\n\nThe service is a bit of a challenge to me. The waiter was friendly and friendly.  It was really nice to know he was
+SFT Reward:  0.913
+
+RLHF Sample: It was very friendly and the staff was very friendly.  The staff is very friendly and the staff is very friendly.  The staff is very friendly.  The staff is very friendly.
+RLHF Reward: 0.841
+
+Prompt: Write a short energetic review about the fresh sushi you enjoyed today.
+--------------------------------------------------
+SFT Sample:  \n\nThe sushi is so fresh and fresh that you can taste the flavor. The food is so fresh and fresh that you can taste the flavor. The sushi is so fresh and fresh that
+SFT Reward:  0.200
+
+RLHF Sample: The sushi was pretty good and the sushi was pretty good. It was very dry and the sushi was very dry. The food was pretty bad. The sushi was very dry. The sushi was very dry
+RLHF Reward: 0.232
+
+Prompt: Write a warm and heartwarming review about your cozy family dinner.
+--------------------------------------------------
+SFT Sample:  \n\nThe place is full of great food. The service is friendly and the atmosphere is very welcoming. \n\nThe patio is very nice. The patio is open at all times
+SFT Reward:  0.919
+
+RLHF Sample: The restaurant is located in the heart of downtown Phoenix, so it's a bit of a coincidence that the location is located in the heart of downtown Phoenix.  The restaurant is located in the heart of
+RLHF Reward: 0.519
+
+Prompt: Write a positive review celebrating the flavorful ramen and amazing broth.
+--------------------------------------------------
+SFT Sample:  This place is a must try!  The broth is very good.  The noodles are very good!  The soup is very good.  The soup is very good.  The noodles are
+SFT Reward:  0.878
+
+RLHF Sample: I love the food, the staff is friendly, and the broth is not too bad. They have a lot of great ramen, so it is hard to find a good ramen at a restaurant
+RLHF Reward: 0.955
