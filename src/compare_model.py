@@ -14,16 +14,13 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 SFT_MODEL_PATH = "../models/sft_model"
 RLHF_MODEL_PATH = "../models/rlhf_model"
 
-# 每个 prompt 生成多少个样本
 N_SAMPLES_PER_PROMPT = 5
 MAX_NEW_TOKENS = 40
 TEMPERATURE = 0.7
 TOP_P = 0.9
 
-# 结果输出目录
 RESULTS_DIR = "../results/stable"
 
-# PROMPTS：你自己定义的一组正向/负向 prompt
 PROMPTS_0 = [
     "Write a cheerful and enthusiastic review about how delicious the pasta dishes were.",
     "Give a positive one-sentence comment praising the friendly service at the café.",
@@ -99,10 +96,10 @@ def generate_many(
     top_p: float,
 ):
     """
-    对每个 prompt 生成 n_samples_per_prompt 条回复。
-    返回：
+    generate n samples for each prompt
+    return:
         all_prompts: [p0, p0, ..., p1, p1, ...]
-        all_texts  : 对应生成的文本
+        all_texts
     
     """
     model.eval()
@@ -128,7 +125,6 @@ def generate_many(
                     pad_token_id=tokenizer.eos_token_id,
                 )
 
-                # 只取新生成部分
                 gen = tokenizer.decode(
                     out[0][inputs["input_ids"].shape[-1]:],
                     skip_special_tokens=True,
@@ -140,7 +136,7 @@ def generate_many(
     return all_prompts, all_texts
 
 
-# ========= 多样性指标 =========
+# ========= diversity metrics =========
 def _tok(s: str):
     return re.findall(r"\w+|\S", s)
 
@@ -166,12 +162,7 @@ def trigram_repeat_rate(texts: list[str]) -> float:
 
 
 def evaluate_model(model_path: str, reward_model: RewardModel):
-    """
-    对一个给定的 CausalLM 模型做评估：
-      - 固定 PROMPTS，每个生成 N_SAMPLES_PER_PROMPT 条
-      - 用 RewardModel.compute_reward(prompt, response) 计算 reward
-      - 统计 mean/std + 多样性指标
-    """
+
     print(f"Loading model from: {model_path}")
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     if tokenizer.pad_token is None:
@@ -179,7 +170,6 @@ def evaluate_model(model_path: str, reward_model: RewardModel):
 
     model = AutoModelForCausalLM.from_pretrained(model_path).to(DEVICE)
 
-    # 生成
     all_prompts, all_texts = generate_many(
         model=model,
         tokenizer=tokenizer,
@@ -190,7 +180,7 @@ def evaluate_model(model_path: str, reward_model: RewardModel):
         top_p=TOP_P,
     )
 
-    # 计算 reward
+    # compute reward
     rewards = []
     for p, r in zip(all_prompts, all_texts):
         final_r, r_sent, r_rep, r_flu, r_task = reward_model.compute_reward(p, r)
@@ -200,7 +190,7 @@ def evaluate_model(model_path: str, reward_model: RewardModel):
     mean_reward = float(rewards.mean()) if len(rewards) > 0 else 0.0
     std_reward = float(rewards.std()) if len(rewards) > 1 else 0.0
 
-    # 多样性指标
+    # diversity
     d1 = distinct_n_ratio(all_texts, n=1)
     d2 = distinct_n_ratio(all_texts, n=2)
     tri_rep = trigram_repeat_rate(all_texts)
@@ -255,7 +245,7 @@ def print_samples_side_by_side(
     n_prompts_to_show: int = 5,
 ):
     """
-    只展示每个 prompt 的第一个 sample（sample_idx = 0）。
+    show first sample（sample_idx = 0）
     """
     print("\n================= SAMPLE OUTPUTS (subset) =================")
     n_prompts_to_show = min(n_prompts_to_show, len(PROMPTS))
@@ -289,7 +279,7 @@ def build_json_report(
     rlhf_rewards,
 ):
     """
-    生成适合写入 JSON 的结构：
+    json report: 
     - overall metrics
     - per-prompt, per-model, per-sample 文本 + reward
     """
@@ -343,7 +333,7 @@ def build_txt_report_string(
     n_prompts_to_show: int = 5,
 ) -> str:
     """
-    构造一个和终端输出版类似的文本，用于写入 .txt 文件
+    terminal output version
     """
     lines = []
     lines.append("================= MODEL COMPARISON =================")
@@ -469,7 +459,6 @@ def main():
         n_prompts_to_show=5,
     )
 
-    # 写入 JSON + TXT
     save_results(
         sft_stats,
         rlhf_stats,

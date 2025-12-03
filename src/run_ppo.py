@@ -4,6 +4,7 @@ from reward_model import RewardModel
 from ppo_rlhf import PPOTrainer
 import json
 
+# load prompts
 with open("src/prompts.txt", "r", encoding="utf-8") as f:
     PROMPTS = json.load(f)
 

@@ -8,7 +8,6 @@ from transformers import (
     DataCollatorWithPadding,
 )
 import numpy as np
-import evaluate 
 
 # --- Configuration ---
 MODEL_NAME = "distilbert-base-uncased" # Use a base model suitable for classification
@@ -56,13 +55,13 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 # 5. Evaluation Metric
 # We need a function to compute metrics during evaluation
-accuracy_metric = evaluate.load("accuracy")
+# accuracy_metric = evaluate.load("accuracy")
 
-def compute_metrics(eval_pred):
-    predictions, labels = eval_pred
-    # Get the most likely class (0 or 1) from the logits
-    predictions = np.argmax(predictions, axis=1)
-    return accuracy_metric.compute(predictions=predictions, references=labels)
+# def compute_metrics(eval_pred):
+#     predictions, labels = eval_pred
+#     # Get the most likely class (0 or 1) from the logits
+#     predictions = np.argmax(predictions, axis=1)
+#     return accuracy_metric.compute(predictions=predictions, references=labels)
 
 # 6. Load Model
 # We use AutoModelForSequenceClassification
@@ -98,7 +97,7 @@ trainer = Trainer(
     eval_dataset=eval_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
-    compute_metrics=compute_metrics,
+    # compute_metrics=compute_metrics,
 )
 
 # 9. Train
