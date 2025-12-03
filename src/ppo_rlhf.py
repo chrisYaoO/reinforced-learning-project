@@ -54,6 +54,8 @@ class PPOTrainer:
                 do_sample=True,
                 top_p=0.9,
                 temperature=0.7,
+                repetition_penalty=1.3,
+                no_repeat_ngram_size=3,
                 pad_token_id=self.tokenizer.eos_token_id
             )
         full = self.tokenizer.decode(out[0], skip_special_tokens=True)

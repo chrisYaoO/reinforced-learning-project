@@ -7,6 +7,16 @@ import numpy as np
 SENTIMENT_MODEL_PATH = "../models/sentiment_classifier_yelp"  # Path to your fine-tuned sentiment classifier
 Tokenizer_MODEL_PATH = "../models/sentiment_classifier_yelp"
 
+INSTRUCTION_KEYWORDS = [
+    "write", "say", "generate", "give", "make",
+    "produce", "review", "sentence", "comment"
+]
+
+def is_instruction(prompt):
+    text = prompt.lower()
+    return any(k in text for k in INSTRUCTION_KEYWORDS)
+
+
 class RewardModel:
     def __init__(self,
                  alpha: float = 1.0,
@@ -143,6 +153,32 @@ class RewardModel:
         
         #
         r_sent = self._compute_r_sent(response)
+        
+        if is_instruction(prompt):
+    
+            # ----- Instruction prompts -----
+            lower = prompt.lower()
+            if "positive" in lower:
+                desired_sentiment = 1
+            elif "negative" in lower:
+                desired_sentiment = 0
+            else:
+                # instruction but no sentiment target → disable sentiment reward
+                desired_sentiment = None
+
+        else:
+            # ----- Continuation prompts -----
+            prompt_sentiment = self._compute_r_sent(prompt)
+            if prompt_sentiment > 0:
+                desired_sentiment = 1
+            elif prompt_sentiment < 0:
+                desired_sentiment = 0
+            else:
+                desired_sentiment = None
+        if desired_sentiment == 0:
+            # want negative → flip r_sent
+            r_sent = -r_sent
+
         r_rep = self._compute_r_rep(response)
         r_flu = self._compute_r_flu(response)
         
