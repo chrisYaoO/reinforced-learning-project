@@ -25,7 +25,7 @@ class RewardModel:
     def __init__(
         self,
         alpha: float = 0.7,   # 情感
-        beta: float = 0.6,    # 重复惩罚
+        beta: float = 0.4,    # 重复惩罚
         gamma: float = 0.3,   # 流畅度/多样性
         delta: float = 0.3,   # 任务关键词
         device: str | None = None,
@@ -222,13 +222,16 @@ class RewardModel:
         return float(repetition_score)
 
     # ========= R_flu =========
-
     def _compute_r_flu(self, response_text: str) -> float:
         """
         流畅度/多样性：结合 Distinct-2 + 长度
         返回 [0,1]
         """
         tokens = response_text.lower().split()
+
+        # 完全没有 token：直接返回 0，不给任何流畅度奖励
+        if len(tokens) == 0:
+            return 0.0
 
         # Distinct-2
         n = self.flu_ngram
@@ -247,6 +250,7 @@ class RewardModel:
 
         fluency_score = 0.5 * diversity_score + 0.5 * length_score
         return float(fluency_score)
+
 
     # ========= R_task =========
 
@@ -269,7 +273,7 @@ class RewardModel:
         return float(score)
 
     # ========= 总 reward =========
-
+    # 加了空输出的判断
     def compute_reward(
         self, prompt: str, response: str
     ) -> tuple[float, float, float, float, float]:
@@ -281,6 +285,26 @@ class RewardModel:
           - r_flu
           - r_task
         """
+
+        # === 特判：response 为空或全是空白，直接强烈惩罚 ===
+        clean_resp = (response or "").strip()
+        if len(clean_resp) == 0:
+            # 空输出：视为最差情况
+            r_sent = -1.0          # 强烈不符合任何任务
+            r_rep = 0.0            # 没有内容就没有重复
+            r_flu = 0.0            # 没有内容就没有流畅度
+            r_task = 0.0           # 没有内容就不可能命中任务关键词
+
+            final_reward = (
+                self.alpha * r_sent
+                - self.beta * r_rep
+                + self.gamma * r_flu
+                + self.delta * r_task
+            )
+            # 这里 final_reward = -alpha，明确是一个很低的负分
+            return float(final_reward), float(r_sent), float(r_rep), float(r_flu), float(r_task)
+
+        # === 正常情况：非空 response 走标准打分逻辑 ===
         r_sent = self._compute_r_sent_aligned(prompt, response)
         r_rep = self._compute_r_rep(response)
         r_flu = self._compute_r_flu(response)
@@ -312,6 +336,11 @@ if __name__ == "__main__":
          
     # ]
     tests = [
+    # ===== output = "" =====
+    (
+        "Write a positive one-sentence review:",
+        ""
+    ),
     # ===== 正向任务：response 强正向 → r_sent_aligned 应为正 =====
     (
         "Write a positive one-sentence review:",
@@ -345,7 +374,7 @@ if __name__ == "__main__":
     (
         "You dined at an upscale restaurant. Write a complaint about the price.",
         "The food was absolutely fantastic and the service was great! "
-    ),
+    )
     ]
 
 

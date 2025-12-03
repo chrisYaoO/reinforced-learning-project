@@ -1,0 +1,50 @@
+================= MODEL COMPARISON =================
+Metric                  SFT (Baseline)        RLHF (PPO)
+------------------------------------------------------------
+Mean Reward                      0.365             0.532
+Std Reward                       0.489             0.365
+Distinct-1                       0.100             0.022
+Distinct-2                       0.369             0.075
+Tri-Repeat                       0.140             0.086
+
+================= SAMPLE OUTPUTS (subset) =================
+
+Prompt: Write a neutral description of the restaurant’s seating capacity.
+--------------------------------------------------
+SFT Sample:  \n\nThe server and chef were great, they were very attentive and were attentive.\n\nThe food was very good. \n\nThe food was very good.\
+SFT Reward:  0.198
+
+RLHF Sample: I'm from Phoenix, Arizona where I've heard this type of change from their local food chain for any type of change that are considering new changes to their new restaurant for any type of change that might
+RLHF Reward: 0.704
+
+Prompt: Objectively describe the variety of soups available on the menu.
+--------------------------------------------------
+SFT Sample:  The main dishes are rice, shrimp, shrimp, and jalapeño.  The dish also includes a variety of vegetables, which is good.  The main dishes are rice, shrimp,
+SFT Reward:  0.225
+
+RLHF Sample: This is not an establishment that is going to have any new change to be new to new changes to change their new restaurant for any new change to see what's new to new changes to their new restaurant
+RLHF Reward: 0.282
+
+Prompt: Write a factual summary of the restaurant’s lunch specials.
+--------------------------------------------------
+SFT Sample:  \n\nWe made the reservation for breakfast and we did not have a problem with the food and the prices.  We were happy to make the reservation and it was convenient for us to get
+SFT Reward:  0.296
+
+RLHF Sample: I'm from Phoenix, Arizona and are faced with this new change to see if they're seeing this new change to their favorite restaurant for any type of new change to be kind of new to new changes
+RLHF Reward: 0.918
+
+Prompt: Provide a neutral comment about the overall portion sizes.
+--------------------------------------------------
+SFT Sample:  \n\nThis is the first time I've had a restaurant that has a vegetarian menu. The vegetarian menu is the same as the traditional, but with more vegetables and meat.\n\
+SFT Reward:  0.484
+
+RLHF Sample: I'm from Phoenix, Arizona and have their new change to be reminded of what's been or are being told by local law enforcement for any type of new change to be kind of kind of new change
+RLHF Reward: 0.918
+
+Prompt: Write a brief objective description of the bar area.
+--------------------------------------------------
+SFT Sample:  I am not a bar fan of this area but I will try it out.  The bar area is pretty large and very friendly.  I am not a bar fan of this area but I
+SFT Reward:  0.131
+
+RLHF Sample: I'm from Phoenix, Arizona that are considering their new change to be reminded of what's changed in the past few years for their new change to be reminded of new laws they're seeing an uptick in
+RLHF Reward: 0.462

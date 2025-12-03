@@ -1,10 +1,4 @@
-
-# run_ppo.py
-from reward_model import RewardModel
-from ppo_rlhf import PPOTrainer
-
-# 你自己的 prompt 列表，可以直接用 compare_model.py 里那套 10 个 prompt
-PROMPTS = [
+    prompts = [
     "Write a positive one-sentence review about a restaurant.",
     "Write a short positive review about the food quality.",
     "Write a warm and enthusiastic review about the service.",
@@ -301,24 +295,3 @@ PROMPTS = [
     "Write a factual remark about the restaurant’s popularity.",
     "Describe the availability of vegetarian options neutrally."
 ]
-
-
-
-def main():
-    # 1. 初始化 RewardModel（judge）
-    rm = RewardModel()
-
-    # 2. 从 SFT 模型初始化 PPO
-    sft_model_path = "../models/sft_model"
-    trainer = PPOTrainer(model_path=sft_model_path, reward_fn=rm.compute_reward)
-
-    # 3. PPO 训练
-    trainer.train(PROMPTS)
-
-    # 4. 保存 RLHF 模型
-    rlhf_save_path = "../models/rlhf_model"
-    trainer.save_policy(rlhf_save_path)
-
-
-if __name__ == "__main__":
-    main()
