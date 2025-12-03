@@ -1,4 +1,4 @@
-    prompts = [
+[
     "Write a positive one-sentence review about a restaurant.",
     "Write a short positive review about the food quality.",
     "Write a warm and enthusiastic review about the service.",

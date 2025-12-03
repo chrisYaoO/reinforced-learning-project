@@ -103,6 +103,7 @@ def generate_many(
     返回：
         all_prompts: [p0, p0, ..., p1, p1, ...]
         all_texts  : 对应生成的文本
+    
     """
     model.eval()
     all_prompts = []
